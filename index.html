@@ -8,6 +8,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- PWA Manifest Dynamic Generation -->
+    <script>
+        const manifest = {
+            "name": "Sohaib Pro Accounting",
+            "short_name": "SohaibPro",
+            "start_url": "./",
+            "display": "standalone",
+            "background_color": "#0f172a",
+            "theme_color": "#312e81",
+            "icons": [{ "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", "sizes": "512x512", "type": "image/png" }]
+        };
+        const stringManifest = JSON.stringify(manifest);
+        const blob = new Blob([stringManifest], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(blob);
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestURL;
+        document.head.appendChild(link);
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
@@ -34,6 +53,9 @@
                 </div>
             </div>
             <div class="flex items-center space-x-2 space-x-reverse">
+                <button id="installAppBtn" onclick="installPWA()" class="hidden bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-md">
+                    <i class="fa-solid fa-download"></i> تثبيت التطبيق
+                </button>
                 <span id="syncStatus" class="bg-amber-500/20 text-amber-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1">
                     <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span> جاري الاتصال...
                 </span>
@@ -73,7 +95,6 @@
                 <div id="dueAlertsList" class="space-y-2 text-xs md:text-sm"></div>
             </div>
 
-            <!-- بطاقات الإحصائيات -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                     <div>
@@ -113,7 +134,6 @@
                 </div>
             </div>
 
-            <!-- أحدث العمليات -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-4 border-b border-slate-100 font-bold text-slate-700 flex items-center gap-2">
                     <i class="fa-solid fa-clock-rotate-left text-indigo-500"></i> آخر العمليات والسندات المسجلة
@@ -207,7 +227,6 @@
                     <button onclick="window.print()" class="mr-auto px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-white hover:bg-slate-900"><i class="fa-solid fa-print"></i> طباعة التقرير</button>
                 </div>
 
-                <!-- تقرير الحركة اليومية -->
                 <div id="subReport-daily" class="space-y-4">
                     <div class="flex items-center gap-3 no-print">
                         <label class="text-xs font-bold text-slate-600">اختر التاريخ:</label>
@@ -230,7 +249,6 @@
                     </div>
                 </div>
 
-                <!-- كشف حساب عميل واحد -->
                 <div id="subReport-singleClient" class="space-y-4 hidden">
                     <div class="no-print">
                         <select id="singleClientSelect" onchange="renderSingleClientReport()" class="w-full sm:w-80 px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold">
@@ -240,7 +258,6 @@
                     <div id="singleClientReportContainer" class="space-y-4"></div>
                 </div>
 
-                <!-- التقرير الإجمالي لجميع العملاء -->
                 <div id="subReport-allClients" class="space-y-4 hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-right text-sm border-collapse">
@@ -263,7 +280,6 @@
         <!-- 5. الإعدادات والنسخ الاحتياطي -->
         <section id="settings" class="tab-content space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- إعدادات المحل وقوالب الرسائل -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                     <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-2"><i class="fa-solid fa-store text-indigo-600"></i> بيانات المحل والشعار</h3>
                     <div>
@@ -292,10 +308,9 @@
                     <button onclick="saveShopSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs">حفظ التغييرات</button>
                 </div>
 
-                <!-- النسخ الاحتياطي -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                     <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-2"><i class="fa-solid fa-database text-indigo-600"></i> النسخ الاحتياطي والأمان</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">بياناتك مُزامنة أوتوماتيكياً مع قاعدة بيانات Firebase السحابية، ويمكنك تصدير نسخة احتياطية محلية بأي وقت.</p>
+                    <p class="text-xs text-slate-500 leading-relaxed">بياناتك مُزامنة أوتوماتيكياً مع قاعدة بيانات Firebase السحابية، وتعمل أوفلاين بدون إنترنت، ويمكنك تصدير نسخة احتياطية محلية بأي وقت.</p>
                     <div class="flex gap-3 pt-2">
                         <button onclick="exportJSONBackup()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2">
                             <i class="fa-solid fa-download"></i> تصدير نسخة احتياطية (JSON)
@@ -355,6 +370,11 @@
                 </div>
             </div>
 
+            <!-- زر إضافة سند جديد للعميل مباشرة من نافذته -->
+            <button id="addVoucherFromDetailBtn" onclick="" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm">
+                <i class="fa-solid fa-plus-circle"></i> إضافة سند جديد لهذا العميل
+            </button>
+
             <div class="overflow-x-auto">
                 <h4 class="font-bold text-sm text-slate-700 mb-2">سجل حركة الحساب والسندات:</h4>
                 <table class="w-full text-right text-xs">
@@ -373,10 +393,10 @@
         </div>
     </div>
 
-    <!-- Firebase Config & Logic -->
+    <!-- Firebase Config & App Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, remove, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDdiwZjBcrXDUbIQmR8XM-0t97bVrgitoQ",
@@ -402,7 +422,43 @@
             msgReminder: ''
         };
 
+        // PWA Installation Hook
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installAppBtn').classList.remove('hidden');
+        });
+
+        window.installPWA = () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('installAppBtn').classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        };
+
         document.getElementById('dailyReportDate').value = new Date().toISOString().split('T')[0];
+
+        // Mapped Network & Local State Sync
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        function updateOnlineStatus() {
+            const syncStatus = document.getElementById('syncStatus');
+            if(navigator.onLine) {
+                syncStatus.className = "bg-emerald-500/20 text-emerald-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1";
+                syncStatus.innerHTML = `<span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> متصل ومُزامن بالسحابة`;
+            } else {
+                syncStatus.className = "bg-amber-500/20 text-amber-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1";
+                syncStatus.innerHTML = `<span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span> يعمل بدون إنترنت (محلياً)`;
+            }
+        }
+        updateOnlineStatus();
 
         onValue(ref(db), (snapshot) => {
             const data = snapshot.val() || {};
@@ -412,11 +468,6 @@
                 settings = data.settings;
                 applySettings();
             }
-
-            const syncStatus = document.getElementById('syncStatus');
-            syncStatus.className = "bg-emerald-500/20 text-emerald-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1";
-            syncStatus.innerHTML = `<span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> متصل ومُزامن بالسحابة`;
-
             renderAll();
         });
 
@@ -527,6 +578,7 @@
 
             document.getElementById('detailClientName').innerText = client.name;
             document.getElementById('detailClientPhone').innerText = client.phone || 'بدون رقم هاتف';
+            document.getElementById('addVoucherFromDetailBtn').onclick = () => addVoucherForSpecificClient(id, client.name);
 
             const cV = Object.entries(vouchers).map(([vId, v]) => ({ id: vId, ...v })).filter(v => v.clientId === id);
             let cDebit = 0, cCredit = 0;
@@ -553,6 +605,13 @@
         };
 
         window.closeClientDetailModal = () => document.getElementById('clientDetailModal').classList.add('hidden');
+
+        window.addVoucherForSpecificClient = function(clientId, clientName) {
+            closeClientDetailModal();
+            switchTab('vouchers');
+            document.getElementById('voucherClientSearch').value = clientName;
+            document.getElementById('selectedClientId').value = clientId;
+        };
 
         window.searchClientForVoucher = function() {
             const query = document.getElementById('voucherClientSearch').value.toLowerCase();
@@ -655,7 +714,6 @@
             const voucherList = Object.entries(vouchers).map(([id, val]) => ({ id, ...val }));
             const clientList = Object.entries(clients).map(([id, val]) => ({ id, ...val }));
 
-            // الإحصائيات
             let totalDebit = 0, totalCredit = 0;
             voucherList.forEach(v => { v.type === 'debit' ? totalDebit += v.amount : totalCredit += v.amount; });
             document.getElementById('statTotalDebit').innerText = totalDebit.toFixed(2) + ' ر.س';
@@ -663,7 +721,6 @@
             document.getElementById('statNetBalance').innerText = (totalDebit - totalCredit).toFixed(2) + ' ر.س';
             document.getElementById('statClientCount').innerText = clientList.length;
 
-            // التنبيهات
             const today = new Date().toISOString().split('T')[0];
             const dueVouchers = voucherList.filter(v => v.dueDate && v.dueDate <= today);
             const alertsContainer = document.getElementById('dueAlertsContainer');
@@ -680,7 +737,6 @@
                 }).join('');
             } else { alertsContainer.classList.add('hidden'); }
 
-            // أحدث السندات
             document.getElementById('recentVouchersTable').innerHTML = voucherList.slice(-5).reverse().map(v => {
                 const c = clients[v.clientId] || { name: 'غير معروف' };
                 return `<tr class="hover:bg-slate-50">
@@ -696,7 +752,6 @@
                 </tr>`;
             }).join('');
 
-            // بطاقات العملاء
             window.renderClientsGrid = function() {
                 const query = (document.getElementById('clientSearchInput')?.value || '').toLowerCase();
                 const filtered = clientList.filter(c => c.name.toLowerCase().includes(query) || (c.phone && c.phone.includes(query)));
@@ -724,12 +779,10 @@
             };
             window.renderClientsGrid();
 
-            // اختيارات العميل في التقارير
             const singleSelect = document.getElementById('singleClientSelect');
             singleSelect.innerHTML = '<option value="">-- حدد العميل لعرض كشف الحساب --</option>' + 
                 clientList.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 
-            // تقرير الحركة اليومية
             window.renderDailyReport = function() {
                 const selectedDate = document.getElementById('dailyReportDate').value;
                 const dailyVouchers = voucherList.filter(v => v.date === selectedDate);
@@ -749,7 +802,6 @@
             };
             window.renderDailyReport();
 
-            // كشف حساب عميل واحد
             window.renderSingleClientReport = function() {
                 const cId = document.getElementById('singleClientSelect').value;
                 const container = document.getElementById('singleClientReportContainer');
@@ -782,7 +834,6 @@
                 `;
             };
 
-            // التقرير المالي العام
             document.getElementById('allClientsReportTable').innerHTML = clientList.map(c => {
                 const cV = voucherList.filter(v => v.clientId === c.id);
                 let cDebit = 0, cCredit = 0;
