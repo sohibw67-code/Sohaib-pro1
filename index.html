@@ -3,27 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة الديون والسندات - Sohaib Pro</title>
+    <title id="pageTitle">Sohaib Pro - نظام إدارة المحل والديون</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 pb-20 md:pb-10">
 
-    <!-- شريط العناوين والتسجيل -->
-    <header class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50">
+    <!-- Header -->
+    <header class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50 no-print">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse">
-                <i class="fa-solid fa-wallet text-amber-400 text-2xl"></i>
-                <h1 class="font-bold text-xl tracking-wide">نظام السندات والديون (Sohaib Pro)</h1>
+                <img id="headerLogo" src="" class="w-10 h-10 rounded-lg hidden border border-white/20 object-cover">
+                <i id="headerIcon" class="fa-solid fa-store text-amber-400 text-2xl"></i>
+                <div>
+                    <h1 id="displayShopName" class="font-bold text-lg tracking-wide">محلات الدشيمي للتجارة العامة</h1>
+                    <p class="text-xs text-indigo-200">نظام إدارة المحل والتسويات المالي (Sohaib Pro)</p>
+                </div>
             </div>
             <div class="flex items-center space-x-2 space-x-reverse">
                 <span id="syncStatus" class="bg-amber-500/20 text-amber-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1">
@@ -33,29 +41,40 @@
         </div>
     </header>
 
-    <!-- شريط التنقل الرئيسي -->
-    <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-14 z-40">
-        <div class="max-w-7xl mx-auto px-4 flex justify-around md:justify-start md:gap-8 overflow-x-auto">
-            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn py-3.5 px-3 text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-chart-pie"></i> اللوحة الرئيسية
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-14 z-40 no-print">
+        <div class="max-w-7xl mx-auto px-4 flex gap-2 md:gap-4 overflow-x-auto py-1">
+            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn py-3 px-3 text-xs md:text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-chart-pie"></i> الرئيسية والتنبيهات
             </button>
-            <button onclick="switchTab('clients')" id="btn-clients" class="tab-btn py-3.5 px-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-users"></i> إدارة العملاء
+            <button onclick="switchTab('vouchers')" id="btn-vouchers" class="tab-btn py-3 px-3 text-xs md:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-file-circle-plus"></i> إضافة سند
             </button>
-            <button onclick="switchTab('vouchers')" id="btn-vouchers" class="tab-btn py-3.5 px-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-file-invoice-dollar"></i> إضافة سند جديد
+            <button onclick="switchTab('clients')" id="btn-clients" class="tab-btn py-3 px-3 text-xs md:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-users"></i> العملاء ومواعيد السداد
             </button>
-            <button onclick="switchTab('reports')" id="btn-reports" class="tab-btn py-3.5 px-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-file-contract"></i> التقارير الشاملة
+            <button onclick="switchTab('reports')" id="btn-reports" class="tab-btn py-3 px-3 text-xs md:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-square-poll-vertical"></i> التقارير والحركة
+            </button>
+            <button onclick="switchTab('settings')" id="btn-settings" class="tab-btn py-3 px-3 text-xs md:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-sliders"></i> الإعدادات والنسخ الاحتياطي
             </button>
         </div>
     </nav>
 
-    <!-- المحتوى الرئيسي -->
     <main class="max-w-7xl mx-auto px-4 py-6">
 
-        <!-- 1. اللوحة الرئيسية (Dashboard) -->
+        <!-- 1. اللوحة الرئيسية والتذكيرات -->
         <section id="dashboard" class="tab-content active space-y-6">
+            <!-- قسم التنبيهات ومواعيد السداد المستحقة -->
+            <div id="dueAlertsContainer" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 shadow-sm">
+                <h3 class="font-bold text-amber-800 text-sm flex items-center gap-2 mb-2">
+                    <i class="fa-solid fa-bell text-amber-600 animate-bounce"></i> تنبيهات ومواعيد سداد مستحقة القرب/اليوم
+                </h3>
+                <div id="dueAlertsList" class="space-y-2 text-xs md:text-sm"></div>
+            </div>
+
+            <!-- بطاقات الإحصائيات -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                     <div>
@@ -66,7 +85,6 @@
                         <i class="fa-solid fa-arrow-down-left"></i>
                     </div>
                 </div>
-
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                     <div>
                         <p class="text-xs font-semibold text-slate-400 mb-1">إجمالي المستحقات (علينا)</p>
@@ -76,7 +94,6 @@
                         <i class="fa-solid fa-arrow-up-right"></i>
                     </div>
                 </div>
-
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                     <div>
                         <p class="text-xs font-semibold text-slate-400 mb-1">صافي الرصيد العام</p>
@@ -86,10 +103,9 @@
                         <i class="fa-solid fa-scale-balanced"></i>
                     </div>
                 </div>
-
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-semibold text-slate-400 mb-1">عدد العملاء المسجلين</p>
+                        <p class="text-xs font-semibold text-slate-400 mb-1">عدد العملاء</p>
                         <h3 class="text-2xl font-black text-slate-700" id="statClientCount">0</h3>
                     </div>
                     <div class="w-12 h-12 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center text-xl">
@@ -98,126 +114,183 @@
                 </div>
             </div>
 
-            <!-- جدول أحدث السندات -->
+            <!-- أحدث العمليات -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-4 border-b border-slate-100 flex justify-between items-center">
-                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left text-indigo-500"></i> آخر العمليات والسندات
-                    </h3>
+                <div class="p-4 border-b border-slate-100 font-bold text-slate-700 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-indigo-500"></i> آخر العمليات والسندات المسجلة
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-right text-sm">
                         <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
                             <tr>
                                 <th class="p-3">التاريخ</th>
-                                <th class="p-3">اسم العميل</th>
+                                <th class="p-3">العميل</th>
                                 <th class="p-3">نوع السند</th>
                                 <th class="p-3">المبلغ</th>
-                                <th class="p-3">البيان/الملاحظة</th>
+                                <th class="p-3">البيان</th>
                                 <th class="p-3 text-center">إجراءات</th>
                             </tr>
                         </thead>
-                        <tbody id="recentVouchersTable" class="divide-y divide-slate-100">
-                            <!-- بيانات ديناميكية -->
-                        </tbody>
+                        <tbody id="recentVouchersTable" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- 2. لوحة العملاء -->
-        <section id="clients" class="tab-content space-y-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                <div class="relative w-full sm:w-80">
-                    <i class="fa-solid fa-magnifying-glass absolute right-3 top-3.5 text-slate-400"></i>
-                    <input type="text" id="clientSearchInput" onkeyup="renderClientsGrid()" placeholder="بحث باسم العميل أو رقم الهاتف..." class="w-full pr-10 pl-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <button onclick="openAddClientModal()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
-                    <i class="fa-solid fa-user-plus"></i> إضافة عميل جديد
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="clientsGrid">
-                <!-- بيانات العملاء -->
-            </div>
-        </section>
-
-        <!-- 3. إضافة سند جديد -->
+        <!-- 2. إضافة سند جديد -->
         <section id="vouchers" class="tab-content">
-            <div class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+            <div class="max-w-2xl mx-auto bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
                 <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-file-circle-plus text-indigo-600"></i> تحرير سند جديد
+                    <i class="fa-solid fa-file-circle-plus text-indigo-600"></i> تحرير وتثبيت سند جديد
                 </h3>
-
                 <form id="voucherForm" onsubmit="handleSaveVoucher(event)" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">اختر العميل (بحث سريع)</label>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">اختر العميل</label>
                         <div class="relative">
-                            <input type="text" id="voucherClientSearch" oninput="searchClientForVoucher()" placeholder="اكتب اسم العميل أو رقمه..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required autocomplete="off">
+                            <input type="text" id="voucherClientSearch" oninput="searchClientForVoucher()" placeholder="اكتب اسم العميل..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500" required autocomplete="off">
                             <input type="hidden" id="selectedClientId">
                             <div id="clientSearchResults" class="hidden absolute right-0 left-0 top-12 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto divide-y divide-slate-100"></div>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1">نوع السند</label>
-                            <select id="voucherType" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            <select id="voucherType" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500" required>
                                 <option value="debit">سند قبض / دين للعميل (له)</option>
                                 <option value="credit">سند صرف / دفع للعميل (عليه)</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1">المبلغ (ر.س)</label>
-                            <input type="number" step="0.01" id="voucherAmount" placeholder="0.00" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            <input type="number" step="0.01" id="voucherAmount" placeholder="0.00" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500" required>
                         </div>
                     </div>
-
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">موعد السداد المتوقع (اختياري للتذكير)</label>
+                        <input type="date" id="voucherDueDate" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500">
+                    </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">البيان / الوصف</label>
-                        <textarea id="voucherNotes" rows="2" placeholder="تفاصيل العملية..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                        <textarea id="voucherNotes" rows="2" placeholder="تفاصيل العملية..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500"></textarea>
                     </div>
-
                     <div class="p-3 bg-indigo-50 rounded-xl border border-indigo-100 flex items-center justify-between">
-                        <span class="text-xs font-medium text-indigo-800">إرسال إشعار عبر واتساب تلقائياً بعد الحفظ</span>
+                        <span class="text-xs font-medium text-indigo-800">إرسال إشعار عبر واتساب باستخدام القالب المسجل</span>
                         <input type="checkbox" id="sendWhatsAppToggle" checked class="w-4 h-4 accent-indigo-600 rounded">
                     </div>
-
                     <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-md flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-floppy-disk"></i> حفظ السند
+                        <i class="fa-solid fa-floppy-disk"></i> حفظ وإعادة المزامنة
                     </button>
                 </form>
             </div>
         </section>
 
-        <!-- 4. التقارير الإجمالية -->
+        <!-- 3. العملاء والمواعيد -->
+        <section id="clients" class="tab-content space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="relative w-full sm:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute right-3 top-3.5 text-slate-400"></i>
+                    <input type="text" id="clientSearchInput" onkeyup="renderClientsGrid()" placeholder="بحث باسم العميل أو الهاتف..." class="w-full pr-10 pl-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button onclick="openAddClientModal()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-user-plus"></i> إضافة عميل جديد
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="clientsGrid"></div>
+        </section>
+
+        <!-- 4. التقارير الشاملة والحركة اليومية -->
         <section id="reports" class="tab-content space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
-                        <i class="fa-solid fa-square-poll-vertical text-indigo-600"></i> التقرير المالي الشامل
-                    </h3>
-                    <button onclick="window.print()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg transition border border-slate-300 flex items-center gap-1">
-                        <i class="fa-solid fa-print"></i> طباعة التقرير
-                    </button>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <!-- اختيار نوع التقرير -->
+                <div class="flex flex-wrap gap-3 border-b border-slate-100 pb-4 no-print">
+                    <button onclick="switchReportSubTab('daily')" id="subBtn-daily" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white">تقرير الحركة اليومية</button>
+                    <button onclick="switchReportSubTab('singleClient')" id="subBtn-singleClient" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">كشف حساب عميل واحد</button>
+                    <button onclick="switchReportSubTab('allClients')" id="subBtn-allClients" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">التقرير المالي العام</button>
+                    <button onclick="window.print()" class="mr-auto px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-white hover:bg-slate-900"><i class="fa-solid fa-print"></i> طباعة التقرير</button>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right text-sm border-collapse">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
-                                <th class="p-3">العميل</th>
-                                <th class="p-3">رقم الهاتف</th>
-                                <th class="p-3">إجمالي له (مدين)</th>
-                                <th class="p-3">إجمالي عليه (دائن)</th>
-                                <th class="p-3">الرصيد الصافي</th>
-                                <th class="p-3">الحالة</th>
-                            </tr>
-                        </thead>
-                        <tbody id="allClientsReportTable" class="divide-y divide-slate-100">
-                            <!-- بيانات التقارير -->
-                        </tbody>
-                    </table>
+                <!-- أ. تقرير الحركة اليومية -->
+                <div id="subReport-daily" class="space-y-4">
+                    <div class="flex items-center gap-3 no-print">
+                        <label class="text-xs font-bold text-slate-600">اختر التاريخ:</label>
+                        <input type="date" id="dailyReportDate" onchange="renderDailyReport()" class="px-3 py-2 border border-slate-200 rounded-xl text-sm">
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-sm">
+                            <thead class="bg-slate-100 text-slate-700">
+                                <tr>
+                                    <th class="p-2">التاريخ</th>
+                                    <th class="p-2">العميل</th>
+                                    <th class="p-2">النوع</th>
+                                    <th class="p-2">المبلغ</th>
+                                    <th class="p-2">البيان</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dailyReportTable" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ب. كشف حساب عميل واحد -->
+                <div id="subReport-singleClient" class="space-y-4 hidden">
+                    <div class="no-print">
+                        <select id="singleClientSelect" onchange="renderSingleClientReport()" class="w-full sm:w-80 px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold">
+                            <option value="">-- حدد العميل لعرض كشف الحساب --</option>
+                        </select>
+                    </div>
+                    <div id="singleClientReportContainer" class="space-y-4"></div>
+                </div>
+
+                <!-- ج. التقرير الإجمالي لجميع العملاء -->
+                <div id="subReport-allClients" class="space-y-4 hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                    <th class="p-3">العميل</th>
+                                    <th class="p-3">رقم الهاتف</th>
+                                    <th class="p-3">إجمالي له (قبض)</th>
+                                    <th class="p-3">إجمالي عليه (صرف)</th>
+                                    <th class="p-3">الرصيد الصافي</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allClientsReportTable" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. الإعدادات والنسخ الاحتياطي -->
+        <section id="settings" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- إعدادات المحل واللوجو -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-2"><i class="fa-solid fa-store text-indigo-600"></i> بيانات المحل والشعار</h3>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">اسم المحل / التجارة</label>
+                        <input type="text" id="settingShopName" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm" value="محلات الدشيمي للتجارة العامة">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">شعار المحل (رابط صورة Direct URL)</label>
+                        <input type="text" id="settingShopLogo" placeholder="https://example.com/logo.png" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">قالب رسائل الواتساب للتذكير بالسندات</label>
+                        <textarea id="settingMsgTemplate" rows="3" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME}👋%0Aتم تسجيل {TYPE} جديد بحسابكم لدى {SHOP_NAME}:%0A📌 المبلغ: {AMOUNT} ر.س%0A📝 البيان: {NOTES}%0A📅 التاريخ: {DATE}</textarea>
+                    </div>
+                    <button onclick="saveShopSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs">حفظ الإعدادات</button>
+                </div>
+
+                <!-- النسخ الاحتياطي -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-2"><i class="fa-solid fa-database text-indigo-600"></i> النسخ الاحتياطي والأمان</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">بياناتك مُزامنة أوتوماتيكياً مع قاعدة بيانات Firebase السحابية، ولكن يمكنك تصدير نسخة احتياطية محلية بصيغة JSON بأي وقت للحفظ الأوفلاين.</p>
+                    <div class="flex gap-3 pt-2">
+                        <button onclick="exportJSONBackup()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-download"></i> تصدير نسخة احتياطية (JSON)
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -225,7 +298,7 @@
     </main>
 
     <!-- Modal إضافة عميل -->
-    <div id="addClientModal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4">
+    <div id="addClientModal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
             <h3 class="font-bold text-lg text-slate-800 border-b border-slate-100 pb-2">إضافة عميل جديد</h3>
             <form onsubmit="handleSaveClient(event)" class="space-y-3">
@@ -245,12 +318,11 @@
         </div>
     </div>
 
-    <!-- Firebase SDK Integration -->
+    <!-- Firebase Config & Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // إعدادات Firebase الخاصة بمشروعك Sohaib-pro1
         const firebaseConfig = {
             apiKey: "AIzaSyDdiwZjBcrXDUbIQmR8XM-0t97bVrgitoQ",
             authDomain: "sohaib-pro1.firebaseapp.com",
@@ -267,14 +339,20 @@
 
         let clients = {};
         let vouchers = {};
+        let settings = { shopName: 'محلات الدشيمي للتجارة العامة', logo: '', msgTemplate: '' };
 
-        // الاستماع للتغييرات في السحابة فوراً (Realtime Sync)
+        // تاريخ اليوم افتراضي
+        document.getElementById('dailyReportDate').value = new Date().toISOString().split('T')[0];
+
         onValue(ref(db), (snapshot) => {
             const data = snapshot.val() || {};
             clients = data.clients || {};
             vouchers = data.vouchers || {};
+            if(data.settings) {
+                settings = data.settings;
+                applySettings();
+            }
 
-            // تحديث حالة الاتصال
             const syncStatus = document.getElementById('syncStatus');
             syncStatus.className = "bg-emerald-500/20 text-emerald-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1";
             syncStatus.innerHTML = `<span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> متصل ومُزامن بالسحابة`;
@@ -282,7 +360,32 @@
             renderAll();
         });
 
-        // جعل الوظائف متاحة على مستوى window لتعمل مع HTML
+        function applySettings() {
+            if(settings.shopName) {
+                document.getElementById('displayShopName').innerText = settings.shopName;
+                document.getElementById('settingShopName').value = settings.shopName;
+            }
+            if(settings.logo) {
+                const img = document.getElementById('headerLogo');
+                img.src = settings.logo;
+                img.classList.remove('hidden');
+                document.getElementById('headerIcon').classList.add('hidden');
+                document.getElementById('settingShopLogo').value = settings.logo;
+            }
+            if(settings.msgTemplate) {
+                document.getElementById('settingMsgTemplate').value = settings.msgTemplate;
+            }
+        }
+
+        window.saveShopSettings = function() {
+            const shopName = document.getElementById('settingShopName').value;
+            const logo = document.getElementById('settingShopLogo').value;
+            const msgTemplate = document.getElementById('settingMsgTemplate').value;
+
+            set(ref(db, 'settings'), { shopName, logo, msgTemplate })
+                .then(() => alert('تم حفظ الإعدادات بنجاح!'));
+        };
+
         window.switchTab = function(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -298,6 +401,15 @@
             }
         };
 
+        window.switchReportSubTab = function(subTab) {
+            ['daily', 'singleClient', 'allClients'].forEach(t => {
+                document.getElementById(`subReport-${t}`).classList.add('hidden');
+                document.getElementById(`subBtn-${t}`).className = 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200';
+            });
+            document.getElementById(`subReport-${subTab}`).classList.remove('hidden');
+            document.getElementById(`subBtn-${subTab}`).className = 'px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white';
+        };
+
         window.openAddClientModal = () => document.getElementById('addClientModal').classList.remove('hidden');
         window.closeAddClientModal = () => document.getElementById('addClientModal').classList.add('hidden');
 
@@ -307,12 +419,11 @@
             const phone = document.getElementById('newClientPhone').value;
 
             const newClientRef = push(ref(db, 'clients'));
-            set(newClientRef, { name, phone })
-                .then(() => {
-                    closeAddClientModal();
-                    document.getElementById('newClientName').value = '';
-                    document.getElementById('newClientPhone').value = '';
-                });
+            set(newClientRef, { name, phone }).then(() => {
+                closeAddClientModal();
+                document.getElementById('newClientName').value = '';
+                document.getElementById('newClientPhone').value = '';
+            });
         };
 
         window.searchClientForVoucher = function() {
@@ -320,10 +431,7 @@
             const resultsDiv = document.getElementById('clientSearchResults');
             resultsDiv.innerHTML = '';
 
-            if(!query) {
-                resultsDiv.classList.add('hidden');
-                return;
-            }
+            if(!query) { resultsDiv.classList.add('hidden'); return; }
 
             const clientList = Object.entries(clients).map(([id, val]) => ({ id, ...val }));
             const filtered = clientList.filter(c => c.name.toLowerCase().includes(query) || (c.phone && c.phone.includes(query)));
@@ -341,9 +449,7 @@
                     };
                     resultsDiv.appendChild(item);
                 });
-            } else {
-                resultsDiv.classList.add('hidden');
-            }
+            } else { resultsDiv.classList.add('hidden'); }
         };
 
         window.handleSaveVoucher = function(e) {
@@ -352,128 +458,176 @@
             const type = document.getElementById('voucherType').value;
             const amount = parseFloat(document.getElementById('voucherAmount').value);
             const notes = document.getElementById('voucherNotes').value;
+            const dueDate = document.getElementById('voucherDueDate').value;
             const sendWhatsApp = document.getElementById('sendWhatsAppToggle').checked;
 
-            if(!clientId || !clients[clientId]) {
-                alert('يرجى تحديد عميل صحيح من قائمة البحث السريع!');
-                return;
-            }
+            if(!clientId || !clients[clientId]) { alert('يرجى اختيار عميل صحيحة من القائمة!'); return; }
 
-            const newVoucher = {
-                clientId,
-                type,
-                amount,
-                notes,
-                date: new Date().toISOString().split('T')[0]
-            };
-
+            const newVoucher = { clientId, type, amount, notes, dueDate, date: new Date().toISOString().split('T')[0] };
             const newVoucherRef = push(ref(db, 'vouchers'));
-            set(newVoucherRef, newVoucher)
-                .then(() => {
-                    if(sendWhatsApp) {
-                        const client = clients[clientId];
-                        if(client && client.phone) {
-                            const typeText = type === 'debit' ? 'سند قبض (له)' : 'سند صرف (عليه)';
-                            const msg = `مرحباً ${client.name}👋%0Aتم تسجيل ${typeText} جديد بحسابكم:%0A📌 المبلغ: ${amount} ر.س%0A📝 البيان: ${notes || 'لا يوجد'}%0A📅 التاريخ: ${newVoucher.date}%0Aشكراً لتعاملكم معنا!`;
-                            window.open(`https://wa.me/${client.phone}?text=${msg}`, '_blank');
-                        }
-                    }
-                    document.getElementById('voucherForm').reset();
-                    document.getElementById('selectedClientId').value = '';
-                    alert('تم حفظ السند بالسحابة بنجاح!');
-                    switchTab('dashboard');
-                });
+
+            set(newVoucherRef, newVoucher).then(() => {
+                if(sendWhatsApp && clients[clientId].phone) {
+                    const client = clients[clientId];
+                    const typeText = type === 'debit' ? 'سند قبض (له)' : 'سند صرف (عليه)';
+                    let msg = settings.msgTemplate || "مرحباً {CLIENT_NAME}👋%0Aتم تسجيل {TYPE} بقيمة {AMOUNT} ر.س";
+                    msg = msg.replace('{CLIENT_NAME}', client.name)
+                             .replace('{TYPE}', typeText)
+                             .replace('{AMOUNT}', amount)
+                             .replace('{NOTES}', notes || '-')
+                             .replace('{DATE}', newVoucher.date)
+                             .replace('{SHOP_NAME}', settings.shopName || 'المحل');
+                    window.open(`https://wa.me/${client.phone}?text=${msg}`, '_blank');
+                }
+                document.getElementById('voucherForm').reset();
+                document.getElementById('selectedClientId').value = '';
+                alert('تم حفظ السند بنجاح!');
+                switchTab('dashboard');
+            });
         };
 
         window.deleteVoucher = function(id) {
-            if(confirm('هل أنت تأكد من حذف هذا السند؟')) {
-                remove(ref(db, `vouchers/${id}`));
-            }
+            if(confirm('هل تفضل حذف هذا السند نهائياً؟')) { remove(ref(db, `vouchers/${id}`)); }
+        };
+
+        window.exportJSONBackup = function() {
+            const backupData = JSON.stringify({ clients, vouchers, settings }, null, 2);
+            const blob = new Blob([backupData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `SohaibPro_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
         };
 
         function renderAll() {
             const voucherList = Object.entries(vouchers).map(([id, val]) => ({ id, ...val }));
             const clientList = Object.entries(clients).map(([id, val]) => ({ id, ...val }));
 
-            // 1. الإحصائيات
+            // 1. إحصائيات
             let totalDebit = 0, totalCredit = 0;
-            voucherList.forEach(v => {
-                if(v.type === 'debit') totalDebit += v.amount;
-                else totalCredit += v.amount;
-            });
-
+            voucherList.forEach(v => { v.type === 'debit' ? totalDebit += v.amount : totalCredit += v.amount; });
             document.getElementById('statTotalDebit').innerText = totalDebit.toFixed(2) + ' ر.س';
             document.getElementById('statTotalCredit').innerText = totalCredit.toFixed(2) + ' ر.س';
             document.getElementById('statNetBalance').innerText = (totalDebit - totalCredit).toFixed(2) + ' ر.س';
             document.getElementById('statClientCount').innerText = clientList.length;
 
-            // 2. السندات الأخيرة
-            const recentTable = document.getElementById('recentVouchersTable');
-            recentTable.innerHTML = voucherList.slice(-5).reverse().map(v => {
-                const client = clients[v.clientId] || { name: 'غير معروف' };
-                return `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-3 text-slate-500">${v.date}</td>
-                        <td class="p-3 font-bold text-slate-700">${client.name}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-bold ${v.type === 'debit' ? 'bg-emerald-100 text-emerald-700':'bg-rose-100 text-rose-700'}">${v.type === 'debit' ? 'قبض':'صرف'}</span></td>
-                        <td class="p-3 font-black">${v.amount} ر.س</td>
-                        <td class="p-3 text-slate-500">${v.notes || '-'}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="deleteVoucher('${v.id}')" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
+            // 2. تذكيرات السداد
+            const today = new Date().toISOString().split('T')[0];
+            const dueVouchers = voucherList.filter(v => v.dueDate && v.dueDate <= today);
+            const alertsContainer = document.getElementById('dueAlertsContainer');
+            const alertsList = document.getElementById('dueAlertsList');
+
+            if(dueVouchers.length > 0) {
+                alertsContainer.classList.remove('hidden');
+                alertsList.innerHTML = dueVouchers.map(v => {
+                    const c = clients[v.clientId] || { name: 'غير معروف' };
+                    return `<div class="bg-white p-2.5 rounded-xl border border-amber-200 flex justify-between items-center">
+                        <span><b>${c.name}</b> - مستحق بتاريخ ${v.dueDate} (المبلغ: ${v.amount} ر.س)</span>
+                        <a href="https://wa.me/${c.phone || ''}" target="_blank" class="bg-amber-600 text-white px-3 py-1 rounded-lg text-xs font-bold"><i class="fa-brands fa-whatsapp"></i> تذكير</a>
+                    </div>`;
+                }).join('');
+            } else { alertsContainer.classList.add('hidden'); }
+
+            // 3. أحدث السندات
+            document.getElementById('recentVouchersTable').innerHTML = voucherList.slice(-5).reverse().map(v => {
+                const c = clients[v.clientId] || { name: 'غير معروف' };
+                return `<tr class="hover:bg-slate-50">
+                    <td class="p-3 text-slate-500">${v.date}</td>
+                    <td class="p-3 font-bold text-slate-700">${c.name}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-bold ${v.type === 'debit' ? 'bg-emerald-100 text-emerald-700':'bg-rose-100 text-rose-700'}">${v.type === 'debit' ? 'قبض':'صرف'}</span></td>
+                    <td class="p-3 font-black">${v.amount} ر.س</td>
+                    <td class="p-3 text-slate-500">${v.notes || '-'}</td>
+                    <td class="p-3 text-center"><button onclick="deleteVoucher('${v.id}')" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>`;
             }).join('');
 
-            // 3. شبكة العملاء
+            // 4. شبكة العملاء
             window.renderClientsGrid = function() {
-                const query = document.getElementById('clientSearchInput') ? document.getElementById('clientSearchInput').value.toLowerCase() : '';
-                const filteredClients = clientList.filter(c => c.name.toLowerCase().includes(query) || (c.phone && c.phone.includes(query)));
-                
-                document.getElementById('clientsGrid').innerHTML = filteredClients.map(c => {
-                    const cVouchers = voucherList.filter(v => v.clientId === c.id);
+                const query = (document.getElementById('clientSearchInput')?.value || '').toLowerCase();
+                const filtered = clientList.filter(c => c.name.toLowerCase().includes(query) || (c.phone && c.phone.includes(query)));
+                document.getElementById('clientsGrid').innerHTML = filtered.map(c => {
+                    const cV = voucherList.filter(v => v.clientId === c.id);
                     let cDebit = 0, cCredit = 0;
-                    cVouchers.forEach(v => v.type === 'debit' ? cDebit += v.amount : cCredit += v.amount);
+                    cV.forEach(v => v.type === 'debit' ? cDebit += v.amount : cCredit += v.amount);
                     const net = cDebit - cCredit;
-
-                    return `
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h4 class="font-bold text-slate-800">${c.name}</h4>
-                                    <p class="text-xs text-slate-400">${c.phone}</p>
-                                </div>
-                                <span class="text-xs px-2.5 py-1 rounded-full font-bold ${net >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
-                                    ${net >= 0 ? 'له: ' + net.toFixed(2) : 'عليه: ' + Math.abs(net).toFixed(2)} ر.س
-                                </span>
-                            </div>
-                            <div class="pt-2 border-t border-slate-100 flex justify-between text-xs text-slate-500">
-                                <span>قبض (له): ${cDebit.toFixed(2)}</span>
-                                <span>صرف (عليه): ${cCredit.toFixed(2)}</span>
-                            </div>
+                    return `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div><h4 class="font-bold text-slate-800">${c.name}</h4><p class="text-xs text-slate-400">${c.phone}</p></div>
+                            <span class="text-xs px-2.5 py-1 rounded-full font-bold ${net >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
+                                ${net >= 0 ? 'له: ' + net.toFixed(2) : 'عليه: ' + Math.abs(net).toFixed(2)} ر.س
+                            </span>
                         </div>
-                    `;
+                        <div class="pt-2 border-t border-slate-100 flex justify-between text-xs text-slate-500">
+                            <span>قبض (له): ${cDebit.toFixed(2)}</span>
+                            <span>صرف (عليه): ${cCredit.toFixed(2)}</span>
+                        </div>
+                    </div>`;
                 }).join('');
             };
             window.renderClientsGrid();
 
-            // 4. تقرير العملاء
-            document.getElementById('allClientsReportTable').innerHTML = clientList.map(c => {
-                const cVouchers = voucherList.filter(v => v.clientId === c.id);
-                let cDebit = 0, cCredit = 0;
-                cVouchers.forEach(v => v.type === 'debit' ? cDebit += v.amount : cCredit += v.amount);
-                const net = cDebit - cCredit;
+            // 5. تحديث قائمة اختيار عميل واحد في التقارير
+            const singleSelect = document.getElementById('singleClientSelect');
+            singleSelect.innerHTML = '<option value="">-- حدد العميل لعرض كشف الحساب --</option>' + 
+                clientList.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 
-                return `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-3 font-bold text-slate-800">${c.name}</td>
-                        <td class="p-3 text-slate-500">${c.phone}</td>
-                        <td class="p-3 text-emerald-600 font-semibold">${cDebit.toFixed(2)}</td>
-                        <td class="p-3 text-rose-600 font-semibold">${cCredit.toFixed(2)}</td>
-                        <td class="p-3 font-black ${net >= 0 ? 'text-emerald-700':'text-rose-700'}">${net.toFixed(2)} ر.س</td>
-                        <td class="p-3"><span class="text-xs px-2 py-0.5 rounded font-bold ${net >= 0 ? 'bg-emerald-100 text-emerald-800':'bg-rose-100 text-rose-800'}">${net >= 0 ? 'رصيد دائن':'مستحق الدفع'}</span></td>
-                    </tr>
+            // 6. الحركة اليومية والتقارير العامة
+            window.renderDailyReport = function() {
+                const selectedDate = document.getElementById('dailyReportDate').value;
+                const dailyVouchers = voucherList.filter(v => v.date === selectedDate);
+                document.getElementById('dailyReportTable').innerHTML = dailyVouchers.map(v => {
+                    const c = clients[v.clientId] || { name: 'غير معروف' };
+                    return `<tr>
+                        <td class="p-2">${v.date}</td>
+                        <td class="p-2 font-bold">${c.name}</td>
+                        <td class="p-2">${v.type === 'debit' ? 'قبض':'صرف'}</td>
+                        <td class="p-2 font-bold">${v.amount} ر.س</td>
+                        <td class="p-2 text-slate-500">${v.notes || '-'}</td>
+                    </tr>`;
+                }).join('');
+            };
+            window.renderDailyReport();
+
+            window.renderSingleClientReport = function() {
+                const cId = document.getElementById('singleClientSelect').value;
+                const container = document.getElementById('singleClientReportContainer');
+                if(!cId || !clients[cId]) { container.innerHTML = ''; return; }
+
+                const c = clients[cId];
+                const cV = voucherList.filter(v => v.clientId === cId);
+                let cDebit = 0, cCredit = 0;
+                cV.forEach(v => v.type === 'debit' ? cDebit += v.amount : cCredit += v.amount);
+
+                container.innerHTML = `
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
+                        <div><h3 class="font-bold text-lg">${c.name}</h3><p class="text-xs text-slate-500">${c.phone}</p></div>
+                        <div class="text-left"><p class="text-xs text-slate-400">الرصيد الصافي</p><h4 class="text-xl font-black ${cDebit - cCredit >= 0 ? 'text-emerald-600':'text-rose-600'}">${(cDebit - cCredit).toFixed(2)} ر.س</h4></div>
+                    </div>
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-slate-100">
+                            <tr><th class="p-2">التاريخ</th><th class="p-2">النوع</th><th class="p-2">المبلغ</th><th class="p-2">البيان</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            ${cV.map(v => `<tr><td class="p-2">${v.date}</td><td class="p-2">${v.type === 'debit' ? 'قبض (له)':'صرف (عليه)'}</td><td class="p-2 font-bold">${v.amount} ر.س</td><td class="p-2 text-slate-500">${v.notes || '-'}</td></tr>`).join('')}
+                        </tbody>
+                    </table>
                 `;
+            };
+
+            // التقرير المالي العام
+            document.getElementById('allClientsReportTable').innerHTML = clientList.map(c => {
+                const cV = voucherList.filter(v => v.clientId === c.id);
+                let cDebit = 0, cCredit = 0;
+                cV.forEach(v => v.type === 'debit' ? cDebit += v.amount : cCredit += v.amount);
+                const net = cDebit - cCredit;
+                return `<tr class="hover:bg-slate-50">
+                    <td class="p-3 font-bold text-slate-800">${c.name}</td>
+                    <td class="p-3 text-slate-500">${c.phone}</td>
+                    <td class="p-3 text-emerald-600 font-semibold">${cDebit.toFixed(2)}</td>
+                    <td class="p-3 text-rose-600 font-semibold">${cCredit.toFixed(2)}</td>
+                    <td class="p-3 font-black ${net >= 0 ? 'text-emerald-700':'text-rose-700'}">${net.toFixed(2)} ر.س</td>
+                </tr>`;
             }).join('');
         }
     </script>
