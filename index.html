@@ -395,10 +395,10 @@
         </div>
     </div>
 
-    <!-- Firebase App Logic with Full Offline Support -->
+    <!-- Firebase App Logic with Offline Queue & Smart Merge -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, enableLogging } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDdiwZjBcrXDUbIQmR8XM-0t97bVrgitoQ",
@@ -414,7 +414,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Local Storage Sync Layer
+        // Local State
         let clients = JSON.parse(localStorage.getItem('sohaib_clients') || '{}');
         let vouchers = JSON.parse(localStorage.getItem('sohaib_vouchers') || '{}');
         let settings = Object.assign({
@@ -426,10 +426,26 @@
             msgReminder: ''
         }, JSON.parse(localStorage.getItem('sohaib_settings') || '{}'));
 
-        function saveLocalCache() {
+        let pendingChanges = JSON.parse(localStorage.getItem('sohaib_pending_changes') || 'false');
+
+        function saveLocalCache(isPending = false) {
             localStorage.setItem('sohaib_clients', JSON.stringify(clients));
             localStorage.setItem('sohaib_vouchers', JSON.stringify(vouchers));
             localStorage.setItem('sohaib_settings', JSON.stringify(settings));
+            if(isPending) {
+                pendingChanges = true;
+                localStorage.setItem('sohaib_pending_changes', 'true');
+            }
+        }
+
+        function syncPendingChangesToCloud() {
+            if(!navigator.onLine) return;
+            const fullData = { clients, vouchers, settings };
+            set(ref(db), fullData).then(() => {
+                pendingChanges = false;
+                localStorage.setItem('sohaib_pending_changes', 'false');
+                console.log("Offline changes synced successfully to Firebase.");
+            }).catch(err => console.error("Sync failed:", err));
         }
 
         let deferredPrompt;
@@ -461,6 +477,9 @@
             if(navigator.onLine) {
                 syncStatus.className = "bg-emerald-500/20 text-emerald-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1";
                 syncStatus.innerHTML = `<span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> متصل ومُزامن بالسحابة`;
+                if(pendingChanges) {
+                    syncPendingChangesToCloud();
+                }
             } else {
                 syncStatus.className = "bg-amber-500/20 text-amber-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1";
                 syncStatus.innerHTML = `<span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span> يعمل بدون إنترنت (محلياً)`;
@@ -468,23 +487,28 @@
         }
         updateOnlineStatus();
 
-        // Render immediately with cached local data
+        // Immediate UI load from LocalStorage
         applySettings();
         renderAll();
 
-        // Realtime Firebase Listener (Updates Local & UI when connected)
+        // Firebase Realtime Listener with Smart Sync Protection
         onValue(ref(db), (snapshot) => {
             const data = snapshot.val();
             if(data) {
-                if(data.clients) clients = data.clients;
-                if(data.vouchers) vouchers = data.vouchers;
-                if(data.settings) settings = Object.assign(settings, data.settings);
-                saveLocalCache();
-                applySettings();
-                renderAll();
+                // If we have unsaved local offline changes, sync them UP instead of letting cloud OVERWRITE local
+                if(pendingChanges && navigator.onLine) {
+                    syncPendingChangesToCloud();
+                } else {
+                    if(data.clients) clients = data.clients;
+                    if(data.vouchers) vouchers = data.vouchers;
+                    if(data.settings) settings = Object.assign(settings, data.settings);
+                    saveLocalCache(false);
+                    applySettings();
+                    renderAll();
+                }
+            } else if(pendingChanges && navigator.onLine) {
+                syncPendingChangesToCloud();
             }
-        }, (error) => {
-            console.warn("Using offline fallback data due to connection or rule state.");
         });
 
         function verifyPassword() {
@@ -523,14 +547,15 @@
             settings.msgCredit = document.getElementById('settingMsgCredit').value;
             settings.msgReminder = document.getElementById('settingMsgReminder').value;
 
-            saveLocalCache();
+            saveLocalCache(true);
             applySettings();
             renderAll();
 
             if(navigator.onLine) {
-                set(ref(db, 'settings'), settings).then(() => alert('تم حفظ الإعدادات وقوالب الرسائل والعملة بنجاح!'));
+                syncPendingChangesToCloud();
+                alert('تم حفظ الإعدادات وقوالب الرسائل والعملة بنجاح!');
             } else {
-                alert('تم حفظ الإعدادات محلياً! ستتم مزامنتها مع السحابة فور توفر الإنترنت.');
+                alert('تم حفظ الإعدادات محلياً! ستتم مزامنتها أوتوماتيكياً فور توفر الإنترنت.');
             }
         };
 
@@ -585,18 +610,15 @@
             const name = document.getElementById('newClientName').value;
             const phone = document.getElementById('newClientPhone').value;
 
-            let cId = editId;
-            if(!cId) {
-                cId = 'c_' + Date.now();
-            }
+            let cId = editId || ('c_' + Date.now());
 
             clients[cId] = { name, phone };
-            saveLocalCache();
+            saveLocalCache(true);
             renderAll();
             closeAddClientModal();
 
             if(navigator.onLine) {
-                set(ref(db, `clients/${cId}`), { name, phone });
+                syncPendingChangesToCloud();
             }
         };
 
@@ -604,10 +626,10 @@
             if(!verifyPassword()) return;
             if(confirm('هل أنت تأكد من حذف هذا العميل وجميع البيانات المتعلقة به؟')) {
                 delete clients[id];
-                saveLocalCache();
+                saveLocalCache(true);
                 renderAll();
                 if(navigator.onLine) {
-                    remove(ref(db, `clients/${id}`));
+                    syncPendingChangesToCloud();
                 }
             }
         };
@@ -728,7 +750,7 @@
             const newVoucher = { clientId, type, amount, notes, dueDate, date: new Date().toISOString().split('T')[0] };
 
             vouchers[vKey] = newVoucher;
-            saveLocalCache();
+            saveLocalCache(true);
             renderAll();
 
             if(sendWhatsApp && clients[clientId].phone) {
@@ -741,7 +763,7 @@
             switchTab('dashboard');
 
             if(navigator.onLine) {
-                set(ref(db, `vouchers/${vKey}`), newVoucher);
+                syncPendingChangesToCloud();
             }
         };
 
@@ -749,10 +771,10 @@
             if(!verifyPassword()) return;
             if(confirm('هل تريد حذف هذا السند نهائياً؟')) {
                 delete vouchers[id];
-                saveLocalCache();
+                saveLocalCache(true);
                 renderAll();
                 if(navigator.onLine) {
-                    remove(ref(db, `vouchers/${id}`));
+                    syncPendingChangesToCloud();
                 }
             }
         };
