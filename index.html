@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageTitle">Sohaib Pro - نظام إدارة المحل والديون</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- PWA Manifest Dynamic Generation -->
     <script>
         const manifest = {
             "name": "Sohaib Pro Accounting",
@@ -86,7 +83,7 @@
 
     <main class="max-w-7xl mx-auto px-4 py-6">
 
-        <!-- 1. اللوحة الرئيسية والتذكيرات -->
+        <!-- 1. اللوحة الرئيسية -->
         <section id="dashboard" class="tab-content active space-y-6">
             <div id="dueAlertsContainer" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 shadow-sm">
                 <h3 class="font-bold text-amber-800 text-sm flex items-center gap-2 mb-2">
@@ -99,7 +96,7 @@
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                     <div>
                         <p class="text-xs font-semibold text-slate-400 mb-1">إجمالي الديون (لنا)</p>
-                        <h3 class="text-2xl font-black text-emerald-600" id="statTotalDebit">0.00 ر.س</h3>
+                        <h3 class="text-2xl font-black text-emerald-600" id="statTotalDebit">0.00</h3>
                     </div>
                     <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
                         <i class="fa-solid fa-arrow-down-left"></i>
@@ -108,7 +105,7 @@
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                     <div>
                         <p class="text-xs font-semibold text-slate-400 mb-1">إجمالي المستحقات (علينا)</p>
-                        <h3 class="text-2xl font-black text-rose-600" id="statTotalCredit">0.00 ر.س</h3>
+                        <h3 class="text-2xl font-black text-rose-600" id="statTotalCredit">0.00</h3>
                     </div>
                     <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center text-xl">
                         <i class="fa-solid fa-arrow-up-right"></i>
@@ -117,7 +114,7 @@
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                     <div>
                         <p class="text-xs font-semibold text-slate-400 mb-1">صافي الرصيد العام</p>
-                        <h3 class="text-2xl font-black text-indigo-600" id="statNetBalance">0.00 ر.س</h3>
+                        <h3 class="text-2xl font-black text-indigo-600" id="statNetBalance">0.00</h3>
                     </div>
                     <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl">
                         <i class="fa-solid fa-scale-balanced"></i>
@@ -180,7 +177,7 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">المبلغ (ر.س)</label>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">المبلغ (<span class="currencySymbolText">ر.س</span>)</label>
                             <input type="number" step="0.01" id="voucherAmount" placeholder="0.00" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500" required>
                         </div>
                     </div>
@@ -217,7 +214,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="clientsGrid"></div>
         </section>
 
-        <!-- 4. التقارير الشاملة والحركة اليومية -->
+        <!-- 4. التقارير -->
         <section id="reports" class="tab-content space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
                 <div class="flex flex-wrap gap-3 border-b border-slate-100 pb-4 no-print">
@@ -281,10 +278,16 @@
         <section id="settings" class="tab-content space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                    <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-2"><i class="fa-solid fa-store text-indigo-600"></i> بيانات المحل والشعار</h3>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">اسم المحل / التجارة</label>
-                        <input type="text" id="settingShopName" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm" value="محلات الدشيمي للتجارة العامة">
+                    <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-2"><i class="fa-solid fa-store text-indigo-600"></i> بيانات المحل والشعار والعملة</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-slate-600 mb-1">اسم المحل / التجارة</label>
+                            <input type="text" id="settingShopName" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm" value="محلات الدشيمي للتجارة العامة">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">رمز/اسم العملة</label>
+                            <input type="text" id="settingCurrency" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-indigo-600" value="ر.س" placeholder="مثال: ر.س، $">
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">شعار المحل (رابط صورة Direct URL)</label>
@@ -294,15 +297,15 @@
                     <h4 class="font-bold text-slate-700 pt-2 border-t border-slate-100"><i class="fa-brands fa-whatsapp text-emerald-600"></i> تخصيص قوالب رسائل الواتساب</h4>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">قالب سند القبض (له)</label>
-                        <textarea id="settingMsgDebit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME}👋%0Aتم تسجيل سند قبض (له) جديد بقيمة {AMOUNT} ر.س لدى {SHOP_NAME}.%0Aالبيان: {NOTES}%0Aالتاريخ: {DATE}</textarea>
+                        <textarea id="settingMsgDebit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME}👋%0Aتم تسجيل سند قبض (له) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.%0Aالبيان: {NOTES}%0Aالتاريخ: {DATE}</textarea>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">قالب سند الصرف (عليه)</label>
-                        <textarea id="settingMsgCredit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME}👋%0Aتم تسجيل سند صرف (عليه) جديد بقيمة {AMOUNT} ر.س لدى {SHOP_NAME}.%0Aالبيان: {NOTES}%0Aالتاريخ: {DATE}</textarea>
+                        <textarea id="settingMsgCredit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME}👋%0Aتم تسجيل سند صرف (عليه) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.%0Aالبيان: {NOTES}%0Aالتاريخ: {DATE}</textarea>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">قالب التذكير بالمستحقات</label>
-                        <textarea id="settingMsgReminder" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">تذكير من {SHOP_NAME}👋%0Aعزيزي {CLIENT_NAME}، نود تذكيركم بموعد سداد المبلغ المستحق بقيمة {AMOUNT} ر.س بتاريخ {DUE_DATE}.</textarea>
+                        <textarea id="settingMsgReminder" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">تذكير من {SHOP_NAME}👋%0Aعزيزي {CLIENT_NAME}، نود تذكيركم بموعد سداد المبلغ المستحق بقيمة {AMOUNT} {CURRENCY} بتاريخ {DUE_DATE}.</textarea>
                     </div>
 
                     <button onclick="saveShopSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs">حفظ التغييرات</button>
@@ -344,7 +347,7 @@
         </div>
     </div>
 
-    <!-- Modal تفاصيل وحركة حساب العميل -->
+    <!-- Modal تفاصيل العميل -->
     <div id="clientDetailModal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -370,7 +373,6 @@
                 </div>
             </div>
 
-            <!-- زر إضافة سند جديد للعميل مباشرة من نافذته -->
             <button id="addVoucherFromDetailBtn" onclick="" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm">
                 <i class="fa-solid fa-plus-circle"></i> إضافة سند جديد لهذا العميل
             </button>
@@ -393,10 +395,10 @@
         </div>
     </div>
 
-    <!-- Firebase Config & App Logic -->
+    <!-- Firebase App Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDdiwZjBcrXDUbIQmR8XM-0t97bVrgitoQ",
@@ -416,13 +418,13 @@
         let vouchers = {};
         let settings = {
             shopName: 'محلات الدشيمي للتجارة العامة',
+            currency: 'ر.س',
             logo: '',
             msgDebit: '',
             msgCredit: '',
             msgReminder: ''
         };
 
-        // PWA Installation Hook
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -444,7 +446,6 @@
 
         document.getElementById('dailyReportDate').value = new Date().toISOString().split('T')[0];
 
-        // Mapped Network & Local State Sync
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
 
@@ -465,10 +466,13 @@
             clients = data.clients || {};
             vouchers = data.vouchers || {};
             if(data.settings) {
-                settings = data.settings;
+                settings = Object.assign(settings, data.settings);
                 applySettings();
             }
             renderAll();
+        }, (error) => {
+            console.error("Firebase Sync Error: ", error);
+            document.getElementById('syncStatus').innerText = "خطأ في الصلاحيات/القواعد!";
         });
 
         function verifyPassword() {
@@ -482,6 +486,10 @@
             if(settings.shopName) {
                 document.getElementById('displayShopName').innerText = settings.shopName;
                 document.getElementById('settingShopName').value = settings.shopName;
+            }
+            if(settings.currency) {
+                document.getElementById('settingCurrency').value = settings.currency;
+                document.querySelectorAll('.currencySymbolText').forEach(el => el.innerText = settings.currency);
             }
             if(settings.logo) {
                 const img = document.getElementById('headerLogo');
@@ -497,13 +505,14 @@
 
         window.saveShopSettings = function() {
             const shopName = document.getElementById('settingShopName').value;
+            const currency = document.getElementById('settingCurrency').value || 'ر.س';
             const logo = document.getElementById('settingShopLogo').value;
             const msgDebit = document.getElementById('settingMsgDebit').value;
             const msgCredit = document.getElementById('settingMsgCredit').value;
             const msgReminder = document.getElementById('settingMsgReminder').value;
 
-            set(ref(db, 'settings'), { shopName, logo, msgDebit, msgCredit, msgReminder })
-                .then(() => alert('تم حفظ الإعدادات وقوالب الرسائل بنجاح!'));
+            set(ref(db, 'settings'), { shopName, currency, logo, msgDebit, msgCredit, msgReminder })
+                .then(() => alert('تم حفظ الإعدادات وقوالب الرسائل والعملة بنجاح!'));
         };
 
         window.switchTab = function(tabId) {
@@ -576,6 +585,7 @@
             const client = clients[id];
             if(!client) return;
 
+            const curr = settings.currency || 'ر.س';
             document.getElementById('detailClientName').innerText = client.name;
             document.getElementById('detailClientPhone').innerText = client.phone || 'بدون رقم هاتف';
             document.getElementById('addVoucherFromDetailBtn').onclick = () => addVoucherForSpecificClient(id, client.name);
@@ -584,15 +594,15 @@
             let cDebit = 0, cCredit = 0;
             cV.forEach(v => v.type === 'debit' ? cDebit += v.amount : cCredit += v.amount);
 
-            document.getElementById('detailTotalDebit').innerText = cDebit.toFixed(2) + ' ر.س';
-            document.getElementById('detailTotalCredit').innerText = cCredit.toFixed(2) + ' ر.س';
-            document.getElementById('detailNetBalance').innerText = (cDebit - cCredit).toFixed(2) + ' ر.س';
+            document.getElementById('detailTotalDebit').innerText = cDebit.toFixed(2) + ' ' + curr;
+            document.getElementById('detailTotalCredit').innerText = cCredit.toFixed(2) + ' ' + curr;
+            document.getElementById('detailNetBalance').innerText = (cDebit - cCredit).toFixed(2) + ' ' + curr;
 
             document.getElementById('detailVouchersTable').innerHTML = cV.reverse().map(v => `
                 <tr>
                     <td class="p-2 text-slate-500">${v.date}</td>
                     <td class="p-2"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${v.type === 'debit' ? 'bg-emerald-100 text-emerald-800':'bg-rose-100 text-rose-800'}">${v.type === 'debit' ? 'قبض':'صرف'}</span></td>
-                    <td class="p-2 font-bold">${v.amount} ر.س</td>
+                    <td class="p-2 font-bold">${v.amount} ${curr}</td>
                     <td class="p-2 text-slate-500">${v.notes || '-'}</td>
                     <td class="p-2 text-center flex justify-center gap-2">
                         <button onclick="resendVoucherMsg('${v.id}')" title="إعادة إرسال عبر واتساب" class="text-emerald-600 hover:text-emerald-800"><i class="fa-brands fa-whatsapp text-sm"></i></button>
@@ -645,9 +655,11 @@
             const client = clients[v.clientId];
             if(!client || !client.phone) { alert('العميل لا يمتلك رقم هاتف مسجل!'); return; }
 
-            let template = v.type === 'debit' ? (settings.msgDebit || "تم تسجيل سند قبض له بقيمة {AMOUNT} ر.س") : (settings.msgCredit || "تم تسجيل سند صرف عليه بقيمة {AMOUNT} ر.س");
+            const curr = settings.currency || 'ر.س';
+            let template = v.type === 'debit' ? (settings.msgDebit || "تم تسجيل سند قبض له بقيمة {AMOUNT} {CURRENCY}") : (settings.msgCredit || "تم تسجيل سند صرف عليه بقيمة {AMOUNT} {CURRENCY}");
             let msg = template.replace('{CLIENT_NAME}', client.name)
                               .replace('{AMOUNT}', v.amount)
+                              .replace('{CURRENCY}', curr)
                               .replace('{NOTES}', v.notes || '-')
                               .replace('{DATE}', v.date)
                               .replace('{SHOP_NAME}', settings.shopName || 'المحل');
@@ -659,9 +671,11 @@
             const client = clients[cId];
             if(!client || !client.phone) { alert('العميل لا يمتلك رقم هاتف!'); return; }
 
-            let template = settings.msgReminder || "تذكير بموعد سداد المبلغ بقيمة {AMOUNT} ر.س";
+            const curr = settings.currency || 'ر.س';
+            let template = settings.msgReminder || "تذكير بموعد سداد المبلغ بقيمة {AMOUNT} {CURRENCY}";
             let msg = template.replace('{CLIENT_NAME}', client.name)
                               .replace('{AMOUNT}', amount)
+                              .replace('{CURRENCY}', curr)
                               .replace('{DUE_DATE}', dueDate)
                               .replace('{SHOP_NAME}', settings.shopName || 'المحل');
 
@@ -711,14 +725,15 @@
         };
 
         function renderAll() {
+            const curr = settings.currency || 'ر.س';
             const voucherList = Object.entries(vouchers).map(([id, val]) => ({ id, ...val }));
             const clientList = Object.entries(clients).map(([id, val]) => ({ id, ...val }));
 
             let totalDebit = 0, totalCredit = 0;
             voucherList.forEach(v => { v.type === 'debit' ? totalDebit += v.amount : totalCredit += v.amount; });
-            document.getElementById('statTotalDebit').innerText = totalDebit.toFixed(2) + ' ر.س';
-            document.getElementById('statTotalCredit').innerText = totalCredit.toFixed(2) + ' ر.س';
-            document.getElementById('statNetBalance').innerText = (totalDebit - totalCredit).toFixed(2) + ' ر.س';
+            document.getElementById('statTotalDebit').innerText = totalDebit.toFixed(2) + ' ' + curr;
+            document.getElementById('statTotalCredit').innerText = totalCredit.toFixed(2) + ' ' + curr;
+            document.getElementById('statNetBalance').innerText = (totalDebit - totalCredit).toFixed(2) + ' ' + curr;
             document.getElementById('statClientCount').innerText = clientList.length;
 
             const today = new Date().toISOString().split('T')[0];
@@ -731,7 +746,7 @@
                 alertsList.innerHTML = dueVouchers.map(v => {
                     const c = clients[v.clientId] || { name: 'غير معروف' };
                     return `<div class="bg-white p-2.5 rounded-xl border border-amber-200 flex justify-between items-center">
-                        <span><b>${c.name}</b> - مستحق بتاريخ ${v.dueDate} (المبلغ: ${v.amount} ر.س)</span>
+                        <span><b>${c.name}</b> - مستحق بتاريخ ${v.dueDate} (المبلغ: ${v.amount} ${curr})</span>
                         <button onclick="sendReminderMsg('${v.clientId}', '${v.amount}', '${v.dueDate}')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1"><i class="fa-brands fa-whatsapp"></i> تذكير</button>
                     </div>`;
                 }).join('');
@@ -743,7 +758,7 @@
                     <td class="p-3 text-slate-500">${v.date}</td>
                     <td class="p-3 font-bold text-slate-700">${c.name}</td>
                     <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-bold ${v.type === 'debit' ? 'bg-emerald-100 text-emerald-700':'bg-rose-100 text-rose-700'}">${v.type === 'debit' ? 'قبض':'صرف'}</span></td>
-                    <td class="p-3 font-black">${v.amount} ر.س</td>
+                    <td class="p-3 font-black">${v.amount} ${curr}</td>
                     <td class="p-3 text-slate-500">${v.notes || '-'}</td>
                     <td class="p-3 text-center flex justify-center gap-2">
                         <button onclick="resendVoucherMsg('${v.id}')" title="إعادة إرسال الإشعار" class="text-emerald-600 hover:text-emerald-800"><i class="fa-brands fa-whatsapp"></i></button>
@@ -764,7 +779,7 @@
                         <div class="flex justify-between items-start cursor-pointer" onclick="openClientDetailModal('${c.id}')">
                             <div><h4 class="font-bold text-slate-800">${c.name}</h4><p class="text-xs text-slate-400">${c.phone}</p></div>
                             <span class="text-xs px-2.5 py-1 rounded-full font-bold ${net >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
-                                ${net >= 0 ? 'له: ' + net.toFixed(2) : 'عليه: ' + Math.abs(net).toFixed(2)} ر.س
+                                ${net >= 0 ? 'له: ' + net.toFixed(2) : 'عليه: ' + Math.abs(net).toFixed(2)} ${curr}
                             </span>
                         </div>
                         <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
@@ -792,7 +807,7 @@
                         <td class="p-2">${v.date}</td>
                         <td class="p-2 font-bold">${c.name}</td>
                         <td class="p-2">${v.type === 'debit' ? 'قبض':'صرف'}</td>
-                        <td class="p-2 font-bold">${v.amount} ر.س</td>
+                        <td class="p-2 font-bold">${v.amount} ${curr}</td>
                         <td class="p-2 text-slate-500">${v.notes || '-'}</td>
                         <td class="p-2 text-center no-print">
                             <button onclick="resendVoucherMsg('${v.id}')" class="text-emerald-600 hover:text-emerald-800"><i class="fa-brands fa-whatsapp"></i></button>
@@ -815,7 +830,7 @@
                 container.innerHTML = `
                     <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
                         <div><h3 class="font-bold text-lg">${c.name}</h3><p class="text-xs text-slate-500">${c.phone}</p></div>
-                        <div class="text-left"><p class="text-xs text-slate-400">الرصيد الصافي</p><h4 class="text-xl font-black ${cDebit - cCredit >= 0 ? 'text-emerald-600':'text-rose-600'}">${(cDebit - cCredit).toFixed(2)} ر.س</h4></div>
+                        <div class="text-left"><p class="text-xs text-slate-400">الرصيد الصافي</p><h4 class="text-xl font-black ${cDebit - cCredit >= 0 ? 'text-emerald-600':'text-rose-600'}">${(cDebit - cCredit).toFixed(2)} ${curr}</h4></div>
                     </div>
                     <table class="w-full text-right text-sm">
                         <thead class="bg-slate-100">
@@ -825,7 +840,7 @@
                             ${cV.map(v => `<tr>
                                 <td class="p-2">${v.date}</td>
                                 <td class="p-2">${v.type === 'debit' ? 'قبض (له)':'صرف (عليه)'}</td>
-                                <td class="p-2 font-bold">${v.amount} ر.س</td>
+                                <td class="p-2 font-bold">${v.amount} ${curr}</td>
                                 <td class="p-2 text-slate-500">${v.notes || '-'}</td>
                                 <td class="p-2 text-center no-print"><button onclick="resendVoucherMsg('${v.id}')" class="text-emerald-600 hover:text-emerald-800"><i class="fa-brands fa-whatsapp"></i></button></td>
                             </tr>`).join('')}
@@ -844,7 +859,7 @@
                     <td class="p-3 text-slate-500">${c.phone}</td>
                     <td class="p-3 text-emerald-600 font-semibold">${cDebit.toFixed(2)}</td>
                     <td class="p-3 text-rose-600 font-semibold">${cCredit.toFixed(2)}</td>
-                    <td class="p-3 font-black ${net >= 0 ? 'text-emerald-700':'text-rose-700'}">${net.toFixed(2)} ر.س</td>
+                    <td class="p-3 font-black ${net >= 0 ? 'text-emerald-700':'text-rose-700'}">${net.toFixed(2)} ${curr}</td>
                 </tr>`;
             }).join('');
         }
