@@ -66,10 +66,9 @@
 
         <!-- 1. اللوحة الرئيسية والتذكيرات -->
         <section id="dashboard" class="tab-content active space-y-6">
-            <!-- قسم التنبيهات ومواعيد السداد المستحقة -->
             <div id="dueAlertsContainer" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 shadow-sm">
                 <h3 class="font-bold text-amber-800 text-sm flex items-center gap-2 mb-2">
-                    <i class="fa-solid fa-bell text-amber-600 animate-bounce"></i> تنبيهات ومواعيد سداد مستحقة القرب/اليوم
+                    <i class="fa-solid fa-bell text-amber-600 animate-bounce"></i> تنبيهات ومواعيد سداد مستحقة
                 </h3>
                 <div id="dueAlertsList" class="space-y-2 text-xs md:text-sm"></div>
             </div>
@@ -174,7 +173,7 @@
                         <textarea id="voucherNotes" rows="2" placeholder="تفاصيل العملية..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500"></textarea>
                     </div>
                     <div class="p-3 bg-indigo-50 rounded-xl border border-indigo-100 flex items-center justify-between">
-                        <span class="text-xs font-medium text-indigo-800">إرسال إشعار عبر واتساب باستخدام القالب المسجل</span>
+                        <span class="text-xs font-medium text-indigo-800">إرسال إشعار عبر واتساب تلقائياً عند الحفظ</span>
                         <input type="checkbox" id="sendWhatsAppToggle" checked class="w-4 h-4 accent-indigo-600 rounded">
                     </div>
                     <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-md flex items-center justify-center gap-2">
@@ -184,7 +183,7 @@
             </div>
         </section>
 
-        <!-- 3. العملاء والمواعيد -->
+        <!-- 3. العملاء ومواعيد السداد -->
         <section id="clients" class="tab-content space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div class="relative w-full sm:w-80">
@@ -201,7 +200,6 @@
         <!-- 4. التقارير الشاملة والحركة اليومية -->
         <section id="reports" class="tab-content space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-                <!-- اختيار نوع التقرير -->
                 <div class="flex flex-wrap gap-3 border-b border-slate-100 pb-4 no-print">
                     <button onclick="switchReportSubTab('daily')" id="subBtn-daily" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white">تقرير الحركة اليومية</button>
                     <button onclick="switchReportSubTab('singleClient')" id="subBtn-singleClient" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">كشف حساب عميل واحد</button>
@@ -209,7 +207,7 @@
                     <button onclick="window.print()" class="mr-auto px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-white hover:bg-slate-900"><i class="fa-solid fa-print"></i> طباعة التقرير</button>
                 </div>
 
-                <!-- أ. تقرير الحركة اليومية -->
+                <!-- تقرير الحركة اليومية -->
                 <div id="subReport-daily" class="space-y-4">
                     <div class="flex items-center gap-3 no-print">
                         <label class="text-xs font-bold text-slate-600">اختر التاريخ:</label>
@@ -224,6 +222,7 @@
                                     <th class="p-2">النوع</th>
                                     <th class="p-2">المبلغ</th>
                                     <th class="p-2">البيان</th>
+                                    <th class="p-2 text-center no-print">إجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="dailyReportTable" class="divide-y divide-slate-100"></tbody>
@@ -231,7 +230,7 @@
                     </div>
                 </div>
 
-                <!-- ب. كشف حساب عميل واحد -->
+                <!-- كشف حساب عميل واحد -->
                 <div id="subReport-singleClient" class="space-y-4 hidden">
                     <div class="no-print">
                         <select id="singleClientSelect" onchange="renderSingleClientReport()" class="w-full sm:w-80 px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold">
@@ -241,7 +240,7 @@
                     <div id="singleClientReportContainer" class="space-y-4"></div>
                 </div>
 
-                <!-- ج. التقرير الإجمالي لجميع العملاء -->
+                <!-- التقرير الإجمالي لجميع العملاء -->
                 <div id="subReport-allClients" class="space-y-4 hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-right text-sm border-collapse">
@@ -264,7 +263,7 @@
         <!-- 5. الإعدادات والنسخ الاحتياطي -->
         <section id="settings" class="tab-content space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- إعدادات المحل واللوجو -->
+                <!-- إعدادات المحل وقوالب الرسائل -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                     <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-2"><i class="fa-solid fa-store text-indigo-600"></i> بيانات المحل والشعار</h3>
                     <div>
@@ -275,17 +274,28 @@
                         <label class="block text-xs font-bold text-slate-600 mb-1">شعار المحل (رابط صورة Direct URL)</label>
                         <input type="text" id="settingShopLogo" placeholder="https://example.com/logo.png" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">
                     </div>
+
+                    <h4 class="font-bold text-slate-700 pt-2 border-t border-slate-100"><i class="fa-brands fa-whatsapp text-emerald-600"></i> تخصيص قوالب رسائل الواتساب</h4>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">قالب رسائل الواتساب للتذكير بالسندات</label>
-                        <textarea id="settingMsgTemplate" rows="3" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME}👋%0Aتم تسجيل {TYPE} جديد بحسابكم لدى {SHOP_NAME}:%0A📌 المبلغ: {AMOUNT} ر.س%0A📝 البيان: {NOTES}%0A📅 التاريخ: {DATE}</textarea>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">قالب سند القبض (له)</label>
+                        <textarea id="settingMsgDebit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME}👋%0Aتم تسجيل سند قبض (له) جديد بقيمة {AMOUNT} ر.س لدى {SHOP_NAME}.%0Aالبيان: {NOTES}%0Aالتاريخ: {DATE}</textarea>
                     </div>
-                    <button onclick="saveShopSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs">حفظ الإعدادات</button>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">قالب سند الصرف (عليه)</label>
+                        <textarea id="settingMsgCredit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME}👋%0Aتم تسجيل سند صرف (عليه) جديد بقيمة {AMOUNT} ر.س لدى {SHOP_NAME}.%0Aالبيان: {NOTES}%0Aالتاريخ: {DATE}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">قالب التذكير بالمستحقات</label>
+                        <textarea id="settingMsgReminder" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">تذكير من {SHOP_NAME}👋%0Aعزيزي {CLIENT_NAME}، نود تذكيركم بموعد سداد المبلغ المستحق بقيمة {AMOUNT} ر.س بتاريخ {DUE_DATE}.</textarea>
+                    </div>
+
+                    <button onclick="saveShopSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs">حفظ التغييرات</button>
                 </div>
 
                 <!-- النسخ الاحتياطي -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                     <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-2"><i class="fa-solid fa-database text-indigo-600"></i> النسخ الاحتياطي والأمان</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">بياناتك مُزامنة أوتوماتيكياً مع قاعدة بيانات Firebase السحابية، ولكن يمكنك تصدير نسخة احتياطية محلية بصيغة JSON بأي وقت للحفظ الأوفلاين.</p>
+                    <p class="text-xs text-slate-500 leading-relaxed">بياناتك مُزامنة أوتوماتيكياً مع قاعدة بيانات Firebase السحابية، ويمكنك تصدير نسخة احتياطية محلية بأي وقت.</p>
                     <div class="flex gap-3 pt-2">
                         <button onclick="exportJSONBackup()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2">
                             <i class="fa-solid fa-download"></i> تصدير نسخة احتياطية (JSON)
@@ -297,11 +307,12 @@
 
     </main>
 
-    <!-- Modal إضافة عميل -->
+    <!-- Modal إضافة / تعديل عميل -->
     <div id="addClientModal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <h3 class="font-bold text-lg text-slate-800 border-b border-slate-100 pb-2">إضافة عميل جديد</h3>
+            <h3 id="clientModalTitle" class="font-bold text-lg text-slate-800 border-b border-slate-100 pb-2">إضافة عميل جديد</h3>
             <form onsubmit="handleSaveClient(event)" class="space-y-3">
+                <input type="hidden" id="editClientId">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">اسم العميل بالكامل</label>
                     <input type="text" id="newClientName" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500" required>
@@ -312,9 +323,53 @@
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeAddClientModal()" class="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700">حفظ العميل</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700">حفظ البيانات</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal تفاصيل وحركة حساب العميل -->
+    <div id="clientDetailModal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div>
+                    <h3 id="detailClientName" class="font-bold text-lg text-slate-800">تفاصيل العميل</h3>
+                    <p id="detailClientPhone" class="text-xs text-slate-400"></p>
+                </div>
+                <button onclick="closeClientDetailModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                    <span class="text-slate-500 block">إجمالي له (قبض)</span>
+                    <span id="detailTotalDebit" class="font-black text-emerald-600 text-sm">0.00</span>
+                </div>
+                <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
+                    <span class="text-slate-500 block">إجمالي عليه (صرف)</span>
+                    <span id="detailTotalCredit" class="font-black text-rose-600 text-sm">0.00</span>
+                </div>
+                <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+                    <span class="text-slate-500 block">الرصيد الصافي</span>
+                    <span id="detailNetBalance" class="font-black text-indigo-600 text-sm">0.00</span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <h4 class="font-bold text-sm text-slate-700 mb-2">سجل حركة الحساب والسندات:</h4>
+                <table class="w-full text-right text-xs">
+                    <thead class="bg-slate-100 text-slate-600">
+                        <tr>
+                            <th class="p-2">التاريخ</th>
+                            <th class="p-2">النوع</th>
+                            <th class="p-2">المبلغ</th>
+                            <th class="p-2">البيان</th>
+                            <th class="p-2 text-center">إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailVouchersTable" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -339,9 +394,14 @@
 
         let clients = {};
         let vouchers = {};
-        let settings = { shopName: 'محلات الدشيمي للتجارة العامة', logo: '', msgTemplate: '' };
+        let settings = {
+            shopName: 'محلات الدشيمي للتجارة العامة',
+            logo: '',
+            msgDebit: '',
+            msgCredit: '',
+            msgReminder: ''
+        };
 
-        // تاريخ اليوم افتراضي
         document.getElementById('dailyReportDate').value = new Date().toISOString().split('T')[0];
 
         onValue(ref(db), (snapshot) => {
@@ -360,6 +420,13 @@
             renderAll();
         });
 
+        function verifyPassword() {
+            const pwd = prompt("يرجى إدخال كلمة السر للاستمرار:");
+            if (pwd === "1234") return true;
+            alert("كلمة السر خاطئة!");
+            return false;
+        }
+
         function applySettings() {
             if(settings.shopName) {
                 document.getElementById('displayShopName').innerText = settings.shopName;
@@ -372,18 +439,20 @@
                 document.getElementById('headerIcon').classList.add('hidden');
                 document.getElementById('settingShopLogo').value = settings.logo;
             }
-            if(settings.msgTemplate) {
-                document.getElementById('settingMsgTemplate').value = settings.msgTemplate;
-            }
+            if(settings.msgDebit) document.getElementById('settingMsgDebit').value = settings.msgDebit;
+            if(settings.msgCredit) document.getElementById('settingMsgCredit').value = settings.msgCredit;
+            if(settings.msgReminder) document.getElementById('settingMsgReminder').value = settings.msgReminder;
         }
 
         window.saveShopSettings = function() {
             const shopName = document.getElementById('settingShopName').value;
             const logo = document.getElementById('settingShopLogo').value;
-            const msgTemplate = document.getElementById('settingMsgTemplate').value;
+            const msgDebit = document.getElementById('settingMsgDebit').value;
+            const msgCredit = document.getElementById('settingMsgCredit').value;
+            const msgReminder = document.getElementById('settingMsgReminder').value;
 
-            set(ref(db, 'settings'), { shopName, logo, msgTemplate })
-                .then(() => alert('تم حفظ الإعدادات بنجاح!'));
+            set(ref(db, 'settings'), { shopName, logo, msgDebit, msgCredit, msgReminder })
+                .then(() => alert('تم حفظ الإعدادات وقوالب الرسائل بنجاح!'));
         };
 
         window.switchTab = function(tabId) {
@@ -410,21 +479,80 @@
             document.getElementById(`subBtn-${subTab}`).className = 'px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white';
         };
 
-        window.openAddClientModal = () => document.getElementById('addClientModal').classList.remove('hidden');
+        window.openAddClientModal = () => {
+            document.getElementById('editClientId').value = '';
+            document.getElementById('clientModalTitle').innerText = 'إضافة عميل جديد';
+            document.getElementById('newClientName').value = '';
+            document.getElementById('newClientPhone').value = '';
+            document.getElementById('addClientModal').classList.remove('hidden');
+        };
+
+        window.editClient = function(id) {
+            if(!verifyPassword()) return;
+            const client = clients[id];
+            if(!client) return;
+            document.getElementById('editClientId').value = id;
+            document.getElementById('clientModalTitle').innerText = 'تعديل بيانات العميل';
+            document.getElementById('newClientName').value = client.name;
+            document.getElementById('newClientPhone').value = client.phone;
+            document.getElementById('addClientModal').classList.remove('hidden');
+        };
+
         window.closeAddClientModal = () => document.getElementById('addClientModal').classList.add('hidden');
 
         window.handleSaveClient = function(e) {
             e.preventDefault();
+            const editId = document.getElementById('editClientId').value;
             const name = document.getElementById('newClientName').value;
             const phone = document.getElementById('newClientPhone').value;
 
-            const newClientRef = push(ref(db, 'clients'));
-            set(newClientRef, { name, phone }).then(() => {
-                closeAddClientModal();
-                document.getElementById('newClientName').value = '';
-                document.getElementById('newClientPhone').value = '';
-            });
+            if(editId) {
+                set(ref(db, `clients/${editId}`), { name, phone }).then(() => closeAddClientModal());
+            } else {
+                const newClientRef = push(ref(db, 'clients'));
+                set(newClientRef, { name, phone }).then(() => closeAddClientModal());
+            }
         };
+
+        window.deleteClient = function(id) {
+            if(!verifyPassword()) return;
+            if(confirm('هل أنت تأكد من حذف هذا العميل وجميع البيانات المتعلقة به؟')) {
+                remove(ref(db, `clients/${id}`));
+            }
+        };
+
+        window.openClientDetailModal = function(id) {
+            const client = clients[id];
+            if(!client) return;
+
+            document.getElementById('detailClientName').innerText = client.name;
+            document.getElementById('detailClientPhone').innerText = client.phone || 'بدون رقم هاتف';
+
+            const cV = Object.entries(vouchers).map(([vId, v]) => ({ id: vId, ...v })).filter(v => v.clientId === id);
+            let cDebit = 0, cCredit = 0;
+            cV.forEach(v => v.type === 'debit' ? cDebit += v.amount : cCredit += v.amount);
+
+            document.getElementById('detailTotalDebit').innerText = cDebit.toFixed(2) + ' ر.س';
+            document.getElementById('detailTotalCredit').innerText = cCredit.toFixed(2) + ' ر.س';
+            document.getElementById('detailNetBalance').innerText = (cDebit - cCredit).toFixed(2) + ' ر.س';
+
+            document.getElementById('detailVouchersTable').innerHTML = cV.reverse().map(v => `
+                <tr>
+                    <td class="p-2 text-slate-500">${v.date}</td>
+                    <td class="p-2"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${v.type === 'debit' ? 'bg-emerald-100 text-emerald-800':'bg-rose-100 text-rose-800'}">${v.type === 'debit' ? 'قبض':'صرف'}</span></td>
+                    <td class="p-2 font-bold">${v.amount} ر.س</td>
+                    <td class="p-2 text-slate-500">${v.notes || '-'}</td>
+                    <td class="p-2 text-center flex justify-center gap-2">
+                        <button onclick="resendVoucherMsg('${v.id}')" title="إعادة إرسال عبر واتساب" class="text-emerald-600 hover:text-emerald-800"><i class="fa-brands fa-whatsapp text-sm"></i></button>
+                        <button onclick="deleteVoucher('${v.id}')" title="حذف السند" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash text-sm"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('clientDetailModal').classList.remove('hidden');
+        };
+
+        window.closeClientDetailModal = () => document.getElementById('clientDetailModal').classList.add('hidden');
 
         window.searchClientForVoucher = function() {
             const query = document.getElementById('voucherClientSearch').value.toLowerCase();
@@ -452,6 +580,35 @@
             } else { resultsDiv.classList.add('hidden'); }
         };
 
+        window.resendVoucherMsg = function(vId) {
+            const v = vouchers[vId];
+            if(!v) return;
+            const client = clients[v.clientId];
+            if(!client || !client.phone) { alert('العميل لا يمتلك رقم هاتف مسجل!'); return; }
+
+            let template = v.type === 'debit' ? (settings.msgDebit || "تم تسجيل سند قبض له بقيمة {AMOUNT} ر.س") : (settings.msgCredit || "تم تسجيل سند صرف عليه بقيمة {AMOUNT} ر.س");
+            let msg = template.replace('{CLIENT_NAME}', client.name)
+                              .replace('{AMOUNT}', v.amount)
+                              .replace('{NOTES}', v.notes || '-')
+                              .replace('{DATE}', v.date)
+                              .replace('{SHOP_NAME}', settings.shopName || 'المحل');
+
+            window.open(`https://wa.me/${client.phone}?text=${msg}`, '_blank');
+        };
+
+        window.sendReminderMsg = function(cId, amount, dueDate) {
+            const client = clients[cId];
+            if(!client || !client.phone) { alert('العميل لا يمتلك رقم هاتف!'); return; }
+
+            let template = settings.msgReminder || "تذكير بموعد سداد المبلغ بقيمة {AMOUNT} ر.س";
+            let msg = template.replace('{CLIENT_NAME}', client.name)
+                              .replace('{AMOUNT}', amount)
+                              .replace('{DUE_DATE}', dueDate)
+                              .replace('{SHOP_NAME}', settings.shopName || 'المحل');
+
+            window.open(`https://wa.me/${client.phone}?text=${msg}`, '_blank');
+        };
+
         window.handleSaveVoucher = function(e) {
             e.preventDefault();
             const clientId = document.getElementById('selectedClientId').value;
@@ -461,23 +618,14 @@
             const dueDate = document.getElementById('voucherDueDate').value;
             const sendWhatsApp = document.getElementById('sendWhatsAppToggle').checked;
 
-            if(!clientId || !clients[clientId]) { alert('يرجى اختيار عميل صحيحة من القائمة!'); return; }
+            if(!clientId || !clients[clientId]) { alert('يرجى اختيار عميل من القائمة!'); return; }
 
             const newVoucher = { clientId, type, amount, notes, dueDate, date: new Date().toISOString().split('T')[0] };
             const newVoucherRef = push(ref(db, 'vouchers'));
 
             set(newVoucherRef, newVoucher).then(() => {
                 if(sendWhatsApp && clients[clientId].phone) {
-                    const client = clients[clientId];
-                    const typeText = type === 'debit' ? 'سند قبض (له)' : 'سند صرف (عليه)';
-                    let msg = settings.msgTemplate || "مرحباً {CLIENT_NAME}👋%0Aتم تسجيل {TYPE} بقيمة {AMOUNT} ر.س";
-                    msg = msg.replace('{CLIENT_NAME}', client.name)
-                             .replace('{TYPE}', typeText)
-                             .replace('{AMOUNT}', amount)
-                             .replace('{NOTES}', notes || '-')
-                             .replace('{DATE}', newVoucher.date)
-                             .replace('{SHOP_NAME}', settings.shopName || 'المحل');
-                    window.open(`https://wa.me/${client.phone}?text=${msg}`, '_blank');
+                    resendVoucherMsg(newVoucherRef.key);
                 }
                 document.getElementById('voucherForm').reset();
                 document.getElementById('selectedClientId').value = '';
@@ -487,7 +635,10 @@
         };
 
         window.deleteVoucher = function(id) {
-            if(confirm('هل تفضل حذف هذا السند نهائياً؟')) { remove(ref(db, `vouchers/${id}`)); }
+            if(!verifyPassword()) return;
+            if(confirm('هل تريد حذف هذا السند نهائياً؟')) {
+                remove(ref(db, `vouchers/${id}`));
+            }
         };
 
         window.exportJSONBackup = function() {
@@ -504,7 +655,7 @@
             const voucherList = Object.entries(vouchers).map(([id, val]) => ({ id, ...val }));
             const clientList = Object.entries(clients).map(([id, val]) => ({ id, ...val }));
 
-            // 1. إحصائيات
+            // الإحصائيات
             let totalDebit = 0, totalCredit = 0;
             voucherList.forEach(v => { v.type === 'debit' ? totalDebit += v.amount : totalCredit += v.amount; });
             document.getElementById('statTotalDebit').innerText = totalDebit.toFixed(2) + ' ر.س';
@@ -512,7 +663,7 @@
             document.getElementById('statNetBalance').innerText = (totalDebit - totalCredit).toFixed(2) + ' ر.س';
             document.getElementById('statClientCount').innerText = clientList.length;
 
-            // 2. تذكيرات السداد
+            // التنبيهات
             const today = new Date().toISOString().split('T')[0];
             const dueVouchers = voucherList.filter(v => v.dueDate && v.dueDate <= today);
             const alertsContainer = document.getElementById('dueAlertsContainer');
@@ -524,12 +675,12 @@
                     const c = clients[v.clientId] || { name: 'غير معروف' };
                     return `<div class="bg-white p-2.5 rounded-xl border border-amber-200 flex justify-between items-center">
                         <span><b>${c.name}</b> - مستحق بتاريخ ${v.dueDate} (المبلغ: ${v.amount} ر.س)</span>
-                        <a href="https://wa.me/${c.phone || ''}" target="_blank" class="bg-amber-600 text-white px-3 py-1 rounded-lg text-xs font-bold"><i class="fa-brands fa-whatsapp"></i> تذكير</a>
+                        <button onclick="sendReminderMsg('${v.clientId}', '${v.amount}', '${v.dueDate}')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1"><i class="fa-brands fa-whatsapp"></i> تذكير</button>
                     </div>`;
                 }).join('');
             } else { alertsContainer.classList.add('hidden'); }
 
-            // 3. أحدث السندات
+            // أحدث السندات
             document.getElementById('recentVouchersTable').innerHTML = voucherList.slice(-5).reverse().map(v => {
                 const c = clients[v.clientId] || { name: 'غير معروف' };
                 return `<tr class="hover:bg-slate-50">
@@ -538,11 +689,14 @@
                     <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-bold ${v.type === 'debit' ? 'bg-emerald-100 text-emerald-700':'bg-rose-100 text-rose-700'}">${v.type === 'debit' ? 'قبض':'صرف'}</span></td>
                     <td class="p-3 font-black">${v.amount} ر.س</td>
                     <td class="p-3 text-slate-500">${v.notes || '-'}</td>
-                    <td class="p-3 text-center"><button onclick="deleteVoucher('${v.id}')" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash"></i></button></td>
+                    <td class="p-3 text-center flex justify-center gap-2">
+                        <button onclick="resendVoucherMsg('${v.id}')" title="إعادة إرسال الإشعار" class="text-emerald-600 hover:text-emerald-800"><i class="fa-brands fa-whatsapp"></i></button>
+                        <button onclick="deleteVoucher('${v.id}')" title="حذف" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash"></i></button>
+                    </td>
                 </tr>`;
             }).join('');
 
-            // 4. شبكة العملاء
+            // بطاقات العملاء
             window.renderClientsGrid = function() {
                 const query = (document.getElementById('clientSearchInput')?.value || '').toLowerCase();
                 const filtered = clientList.filter(c => c.name.toLowerCase().includes(query) || (c.phone && c.phone.includes(query)));
@@ -551,28 +705,31 @@
                     let cDebit = 0, cCredit = 0;
                     cV.forEach(v => v.type === 'debit' ? cDebit += v.amount : cCredit += v.amount);
                     const net = cDebit - cCredit;
-                    return `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                        <div class="flex justify-between items-start">
+                    return `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 hover:border-indigo-300 transition">
+                        <div class="flex justify-between items-start cursor-pointer" onclick="openClientDetailModal('${c.id}')">
                             <div><h4 class="font-bold text-slate-800">${c.name}</h4><p class="text-xs text-slate-400">${c.phone}</p></div>
                             <span class="text-xs px-2.5 py-1 rounded-full font-bold ${net >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
                                 ${net >= 0 ? 'له: ' + net.toFixed(2) : 'عليه: ' + Math.abs(net).toFixed(2)} ر.س
                             </span>
                         </div>
-                        <div class="pt-2 border-t border-slate-100 flex justify-between text-xs text-slate-500">
-                            <span>قبض (له): ${cDebit.toFixed(2)}</span>
-                            <span>صرف (عليه): ${cCredit.toFixed(2)}</span>
+                        <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+                            <button onclick="openClientDetailModal('${c.id}')" class="text-indigo-600 hover:underline font-bold flex items-center gap-1"><i class="fa-solid fa-list-check"></i> حركة الحساب</button>
+                            <div class="flex gap-2">
+                                <button onclick="editClient('${c.id}')" title="تعديل العميل" class="text-slate-400 hover:text-indigo-600"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteClient('${c.id}')" title="حذف العميل" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash"></i></button>
+                            </div>
                         </div>
                     </div>`;
                 }).join('');
             };
             window.renderClientsGrid();
 
-            // 5. تحديث قائمة اختيار عميل واحد في التقارير
+            // اختيارات العميل في التقارير
             const singleSelect = document.getElementById('singleClientSelect');
             singleSelect.innerHTML = '<option value="">-- حدد العميل لعرض كشف الحساب --</option>' + 
                 clientList.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 
-            // 6. الحركة اليومية والتقارير العامة
+            // تقرير الحركة اليومية
             window.renderDailyReport = function() {
                 const selectedDate = document.getElementById('dailyReportDate').value;
                 const dailyVouchers = voucherList.filter(v => v.date === selectedDate);
@@ -584,11 +741,15 @@
                         <td class="p-2">${v.type === 'debit' ? 'قبض':'صرف'}</td>
                         <td class="p-2 font-bold">${v.amount} ر.س</td>
                         <td class="p-2 text-slate-500">${v.notes || '-'}</td>
+                        <td class="p-2 text-center no-print">
+                            <button onclick="resendVoucherMsg('${v.id}')" class="text-emerald-600 hover:text-emerald-800"><i class="fa-brands fa-whatsapp"></i></button>
+                        </td>
                     </tr>`;
                 }).join('');
             };
             window.renderDailyReport();
 
+            // كشف حساب عميل واحد
             window.renderSingleClientReport = function() {
                 const cId = document.getElementById('singleClientSelect').value;
                 const container = document.getElementById('singleClientReportContainer');
@@ -606,10 +767,16 @@
                     </div>
                     <table class="w-full text-right text-sm">
                         <thead class="bg-slate-100">
-                            <tr><th class="p-2">التاريخ</th><th class="p-2">النوع</th><th class="p-2">المبلغ</th><th class="p-2">البيان</th></tr>
+                            <tr><th class="p-2">التاريخ</th><th class="p-2">النوع</th><th class="p-2">المبلغ</th><th class="p-2">البيان</th><th class="p-2 text-center no-print">إعادة إرسال</th></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            ${cV.map(v => `<tr><td class="p-2">${v.date}</td><td class="p-2">${v.type === 'debit' ? 'قبض (له)':'صرف (عليه)'}</td><td class="p-2 font-bold">${v.amount} ر.س</td><td class="p-2 text-slate-500">${v.notes || '-'}</td></tr>`).join('')}
+                            ${cV.map(v => `<tr>
+                                <td class="p-2">${v.date}</td>
+                                <td class="p-2">${v.type === 'debit' ? 'قبض (له)':'صرف (عليه)'}</td>
+                                <td class="p-2 font-bold">${v.amount} ر.س</td>
+                                <td class="p-2 text-slate-500">${v.notes || '-'}</td>
+                                <td class="p-2 text-center no-print"><button onclick="resendVoucherMsg('${v.id}')" class="text-emerald-600 hover:text-emerald-800"><i class="fa-brands fa-whatsapp"></i></button></td>
+                            </tr>`).join('')}
                         </tbody>
                     </table>
                 `;
