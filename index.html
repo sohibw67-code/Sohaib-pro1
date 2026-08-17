@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة الحسابات والديون المحترف</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Dexie.js for IndexedDB -->
+  <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+  <!-- Google Fonts (Cairo) -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #f3f4f6;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      body { background-color: #fff; }
+    }
+    .print-only { display: none; }
+  </style>
+</head>
+<body class="text-gray-800 pb-20 md:pb-6">
+
+  <!-- الهيدر العلوي -->
+  <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-50 no-print">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div id="shopLogoContainer" class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center overflow-hidden border-2 border-white">
+          <i class="fa-solid font-bold fa-store text-xl text-white" id="shopLogoIcon"></i>
+          <img id="shopLogoImg" class="hidden w-full h-full object-cover" src="" alt="Logo">
+        </div>
+        <div>
+          <h1 id="headerShopName" class="font-bold text-lg leading-tight">دفتر الحسابات والديون</h1>
+          <p class="text-xs text-indigo-200">إدارة الديون والسندات الذكية</p>
+        </div>
+      </div>
+      <button onclick="openModal('settingsModal')" class="p-2 hover:bg-indigo-600 rounded-full transition" title="الإعدادات">
+        <i class="fa-solid fa-gear text-xl"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- شريط التنقل الأساسي -->
+  <nav class="bg-white border-b border-gray-200 sticky top-[60px] z-40 no-print shadow-sm">
+    <div class="max-w-6xl mx-auto px-2 flex justify-around md:justify-start md:gap-6 overflow-x-auto text-sm">
+      <button onclick="switchTab('tab-customers')" id="btn-tab-customers" class="tab-btn py-3 px-4 font-bold border-b-2 border-indigo-600 text-indigo-600 flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-users"></i> العملاء
+      </button>
+      <button onclick="switchTab('tab-vouchers')" id="btn-tab-vouchers" class="tab-btn py-3 px-4 font-semibold text-gray-500 hover:text-indigo-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-file-invoice-dollar"></i> السندات
+      </button>
+      <button onclick="switchTab('tab-overdue')" id="btn-tab-overdue" class="tab-btn py-3 px-4 font-semibold text-gray-500 hover:text-indigo-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap relative">
+        <i class="fa-solid fa-clock-rotate-left"></i> المتأخرين
+        <span id="overdueBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+      </button>
+      <button onclick="switchTab('tab-reports')" id="btn-tab-reports" class="tab-btn py-3 px-4 font-semibold text-gray-500 hover:text-indigo-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-chart-line"></i> التقارير
+      </button>
+    </div>
+  </nav>
+
+  <!-- المحتوى الرئيسي -->
+  <main class="max-w-6xl mx-auto px-4 py-6">
+
+    <!-- ================= 1. تبويب العملاء ================= -->
+    <section id="tab-customers" class="tab-content">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 no-print">
+        <div class="flex items-center gap-2 w-full md:w-auto">
+          <button onclick="openModal('addCustomerModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-md w-full md:w-auto justify-center transition">
+            <i class="fa-solid fa-user-plus"></i> إضافة عميل جديد
+          </button>
+          <button onclick="openModal('addVoucherModal')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-md w-full md:w-auto justify-center transition">
+            <i class="fa-solid fa-plus-circle"></i> إضافة سند
+          </button>
+        </div>
+
+        <div class="flex items-center gap-3 w-full md:w-auto">
+          <!-- البحث -->
+          <div class="relative flex-1 md:w-64">
+            <input type="text" id="customerSearchInput" oninput="renderCustomers()" placeholder="بحث باسم العميل أو الرقم..." class="w-full pr-10 pl-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+            <i class="fa-solid fa-magnifying-glass absolute right-3 top-3 text-gray-400"></i>
+          </div>
+          <!-- الترتيب -->
+          <select id="customerSortSelect" onchange="renderCustomers()" class="bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <option value="name">ترتيب بالاسم</option>
+            <option value="balance-desc">الأعلى ديناً</option>
+            <option value="balance-asc">الأقل ديناً</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ملخص إحصائي سريع -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 no-print">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 border-r-4 border-r-indigo-500">
+          <p class="text-xs text-gray-500 font-semibold">إجمالي العملاء</p>
+          <p id="statTotalCustomers" class="text-xl font-extrabold text-gray-800 mt-1">0</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 border-r-4 border-r-red-500">
+          <p class="text-xs text-gray-500 font-semibold">إجمالي الديون (لصالحك)</p>
+          <p id="statTotalDebts" class="text-xl font-extrabold text-red-600 mt-1">0.00</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 border-r-4 border-r-emerald-500">
+          <p class="text-xs text-gray-500 font-semibold">إجمالي المبالغ (عليك)</p>
+          <p id="statTotalCredits" class="text-xl font-extrabold text-emerald-600 mt-1">0.00</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 border-r-4 border-r-amber-500">
+          <p class="text-xs text-gray-500 font-semibold">متأخرون عن السداد</p>
+          <p id="statOverdueCount" class="text-xl font-extrabold text-amber-600 mt-1">0</p>
+        </div>
+      </div>
+
+      <!-- شبكة العملاء -->
+      <div id="customersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- يتم تعبئتها ديناميكياً -->
+      </div>
+    </section>
+
+    <!-- ================= 2. تبويب السندات والعمليات ================= -->
+    <section id="tab-vouchers" class="tab-content hidden">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 no-print">
+        <h2 class="text-xl font-bold text-gray-800">سجل السندات والحركات الماليّة</h2>
+        <div class="flex items-center gap-3 w-full md:w-auto">
+          <div class="relative flex-1 md:w-64">
+            <input type="text" id="voucherSearchInput" oninput="renderVouchers()" placeholder="بحث في السندات أو البيان..." class="w-full pr-10 pl-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+            <i class="fa-solid fa-magnifying-glass absolute right-3 top-3 text-gray-400"></i>
+          </div>
+          <button onclick="openModal('addVoucherModal')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 whitespace-nowrap shadow-sm">
+            <i class="fa-solid fa-plus"></i> سند جديد
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-right text-sm">
+            <thead class="bg-gray-50 text-gray-600 font-bold border-b border-gray-200">
+              <tr>
+                <th class="p-3">التاريخ</th>
+                <th class="p-3">العميل</th>
+                <th class="p-3">نوع السند</th>
+                <th class="p-3">المبلغ</th>
+                <th class="p-3">البيان/الملاحظة</th>
+                <th class="p-3">موعد الاستحقاق</th>
+                <th class="p-3 text-center">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="vouchersTableBody" class="divide-y divide-gray-100">
+              <!-- يتم التعبئة ديناميكياً -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 3. تبويب المتأخرين عن السداد ================= -->
+    <section id="tab-overdue" class="tab-content hidden">
+      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex items-center gap-3">
+        <i class="fa-solid fa-bell-concierge text-2xl text-amber-600"></i>
+        <div>
+          <h3 class="font-bold text-amber-900">متابعة المتأخرين عن السداد</h3>
+          <p class="text-xs text-amber-700">تظهر هنا القائمة بالعملاء الذين تجاوزوا تاريخ استحقاق السداد المحدد ولم يوفوا المبالغ المستحقة.</p>
+        </div>
+      </div>
+
+      <div id="overdueList" class="space-y-4">
+        <!-- يتم التعبئة ديناميكياً -->
+      </div>
+    </section>
+
+    <!-- ================= 4. تبويب التقارير وكشوفات الحساب ================= -->
+    <section id="tab-reports" class="tab-content hidden">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 mb-6 no-print">
+        <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-file-pdf text-indigo-600"></i> استخراج كشف حساب عميل
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">اختر العميل:</label>
+            <select id="reportCustomerSelect" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <!-- يُملأ ديناميكياً -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">تصفية حسب النشاط:</label>
+            <select id="reportTypeSelect" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <option value="all">كافة السندات والعمليات</option>
+              <option value="debit">السندات الآجلة (المطلوب سدادها)</option>
+              <option value="credit">سندات القبض (الدفعات المقبوضة)</option>
+            </select>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="generateCustomerReport()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl font-bold text-sm w-full transition shadow-sm">
+              عرض التقرير
+            </button>
+            <button onclick="window.print()" class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-xl font-bold text-sm transition shadow-sm whitespace-nowrap">
+              <i class="fa-solid fa-print"></i> طباعة
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- منطقة عرض التقرير وقابلة للطباعة -->
+      <div id="reportContainer" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 min-h-[300px]">
+        <div class="text-center text-gray-400 py-12">
+          <i class="fa-solid fa-receipt text-5xl mb-3"></i>
+          <p class="text-sm">اختر عميلاً من الأعلى واضغط "عرض التقرير" لاستعراض كشف الحساب التفصيلي</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= مودالات ونوافذ منبثقة ================= -->
+
+  <!-- 1. مودال إضافة عميل جديد -->
+  <div id="addCustomerModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl relative animate-fadeIn">
+      <button onclick="closeModal('addCustomerModal')" class="absolute left-4 top-4 text-gray-400 hover:text-gray-600">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+      <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-user-plus text-indigo-600"></i> إضافة عميل جديد
+      </h3>
+      <form id="addCustomerForm" onsubmit="handleSaveCustomer(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">اسم العميل الكامل *</label>
+          <input type="text" id="custName" required placeholder="مثال: محمد أحمد علي" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">رقم الهاتف / الواتساب *</label>
+          <input type="tel" id="custPhone" required placeholder="مثال: 967770000000" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">تنسيق وتحديد الإشعارات والتذكيرات:</label>
+          <select id="custNotifySetting" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <option value="all">إرسال إشعارات وتذكيرات السداد والعمليات</option>
+            <option value="reminders_only">تذكيرات مواعيد السداد فقط</option>
+            <option value="none">بدون إشعارات وتذكيرات تلقائية</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">ملاحظات / العنوان</label>
+          <input type="text" id="custNotes" placeholder="عنوان العميل أو أي ملاحظة" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+        <div class="pt-2">
+          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl shadow-md transition">
+            حفظ العميل
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. مودال إضافة سند جديد -->
+  <div id="addVoucherModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeModal('addVoucherModal')" class="absolute left-4 top-4 text-gray-400 hover:text-gray-600">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+      <h3 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+        <i class="fa-solid fa-file-circle-plus text-emerald-600"></i> إضافة سند / عملية ماليّة
+      </h3>
+      <p class="text-xs text-gray-500 mb-4">أنشئ سند قبض أو صرف جديد وحدد مواعيد الاستحقاق بكل سهولة</p>
+
+      <form id="addVoucherForm" onsubmit="handleSaveVoucher(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">العميل *</label>
+          <select id="vouchCustomerSelect" required onchange="updateVoucherCustomerInfo()" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <!-- يُملأ ديناميكياً -->
+          </select>
+        </div>
+
+        <!-- معااينة رصيد العميل قبل الحفظ -->
+        <div id="vouchCustBalanceBox" class="bg-gray-50 border border-gray-200 p-3 rounded-xl flex justify-between items-center text-xs">
+          <span class="text-gray-600 font-semibold">رصيد العميل الحالي:</span>
+          <span id="vouchCustBalanceText" class="font-bold text-gray-800">0.00</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">نوع السند *</label>
+            <select id="vouchType" required class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <option value="debit">سند صرف / دين جديد (على العميل)</option>
+              <option value="credit">سند قبض / سداد (من العميل)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">المبلغ *</label>
+            <input type="number" step="0.01" id="vouchAmount" required placeholder="0.00" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none font-bold text-indigo-700">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">تاريخ السند *</label>
+            <input type="date" id="vouchDate" required class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">موعد استحقاق السداد</label>
+            <input type="date" id="vouchDueDate" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">البيان / تفاصيل العملية</label>
+          <textarea id="vouchNotes" rows="2" placeholder="اكتب تفاصيل البضاعة أو السند هنا..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow-md transition">
+            حفظ السند وإضافته
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. مودال إعدادات التطبيق والرسائل -->
+  <div id="settingsModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeModal('settingsModal')" class="absolute left-4 top-4 text-gray-400 hover:text-gray-600">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+      <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-sliders text-indigo-600"></i> إعدادات المحل والرسائل
+      </h3>
+
+      <form id="settingsForm" onsubmit="handleSaveSettings(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">اسم المحل / النشاط التجاري</label>
+          <input type="text" id="settingShopName" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+        
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">رابط صورة اللوجو (Logo URL)</label>
+          <input type="url" id="settingLogoUrl" placeholder="https://..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <hr class="my-4 border-gray-200">
+        <h4 class="font-bold text-sm text-gray-800">تخصيص قوالب الرسائل الجاهزة (الواتساب والـ SMS)</h4>
+        <p class="text-[11px] text-gray-500">الكلمات التي بين أقواس مثل <code class="bg-gray-100 px-1 rounded">{الاسم}</code> أو <code class="bg-gray-100 px-1 rounded">{المبلغ}</code> أو <code class="bg-gray-100 px-1 rounded">{المحل}</code> سيتم استبدالها تلقائياً بالقيم الحقيقية.</p>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">رسالة سند القبض (السداد)</label>
+          <textarea id="settingTplCredit" rows="2" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">رسالة سند الصرف (الدين الجديد)</label>
+          <textarea id="settingTplDebit" rows="2" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">رسالة التذكير بالسداد للمتأخرين</label>
+          <textarea id="settingTplReminder" rows="2" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl shadow-md transition">
+            حفظ التغييرات بالإعدادات
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Javascript Logic -->
+  <script>
+    // 1. تهيئة قاعدة البيانات المحلية باستخدام Dexie
+    const db = new Dexie("SmartAccountsProDB");
+    db.version(2).stores({
+      customers: '++id, name, phone, notifySetting, notes, createdAt',
+      vouchers: '++id, customerId, type, amount, date, dueDate, notes, createdAt',
+      settings: 'key, value'
+    });
+
+    // إعدادات وافتراضات النظام
+    let defaultSettings = {
+      shopName: 'متجري للحسابات',
+      logoUrl: '',
+      tplCredit: 'عزيزي {الاسم}، تم استلام مبلغ {المبلغ} ريال برصيد حسابكم لدى {المحل}. شكراً لتعاملكم معنا.',
+      tplDebit: 'عزيزي {الاسم}، تم تقييد مبلغ {المبلغ} ريال لحسابكم لدى {المحل}. البيان: {البيان}.',
+      tplReminder: 'عزيزي {الاسم}، نود تذكيركم بلطف بأن لديكم مبلغ متبقي قدره {المبلغ} ريال مستحق السداد لدى {المحل}. يرجى التكرم بالسداد.'
+    };
+
+    let appSettings = {...defaultSettings};
+
+    // عند تحميل الصفحة
+    window.addEventListener('DOMContentLoaded', async () => {
+      await loadSettings();
+      // وضع تاريخ اليوم كافتراضي لنموذج السندات
+      document.getElementById('vouchDate').value = new Date().toISOString().split('T')[0];
+      await refreshAllData();
+    });
+
+    // تحميل الإعدادات
+    async function loadSettings() {
+      const keys = Object.keys(defaultSettings);
+      for (const key of keys) {
+        const item = await db.settings.get(key);
+        if (item) appSettings[key] = item.value;
+      }
+      applySettingsUI();
+    }
+
+    function applySettingsUI() {
+      document.getElementById('headerShopName').textContent = appSettings.shopName;
+      document.getElementById('settingShopName').value = appSettings.shopName;
+      document.getElementById('settingLogoUrl').value = appSettings.logoUrl || '';
+      document.getElementById('settingTplCredit').value = appSettings.tplCredit;
+      document.getElementById('settingTplDebit').value = appSettings.tplDebit;
+      document.getElementById('settingTplReminder').value = appSettings.tplReminder;
+
+      const logoImg = document.getElementById('shopLogoImg');
+      const logoIcon = document.getElementById('shopLogoIcon');
+      if (appSettings.logoUrl) {
+        logoImg.src = appSettings.logoUrl;
+        logoImg.classList.remove('hidden');
+        logoIcon.classList.add('hidden');
+      } else {
+        logoImg.classList.add('hidden');
+        logoIcon.classList.remove('hidden');
+      }
+    }
+
+    async function handleSaveSettings(e) {
+      e.preventDefault();
+      appSettings.shopName = document.getElementById('settingShopName').value || 'متجري';
+      appSettings.logoUrl = document.getElementById('settingLogoUrl').value;
+      appSettings.tplCredit = document.getElementById('settingTplCredit').value;
+      appSettings.tplDebit = document.getElementById('settingTplDebit').value;
+      appSettings.tplReminder = document.getElementById('settingTplReminder').value;
+
+      for (const [key, val] of Object.entries(appSettings)) {
+        await db.settings.put({ key, value: val });
+      }
+
+      applySettingsUI();
+      closeModal('settingsModal');
+      alert('تم حفظ الإعدادات بنجاح!');
+    }
+
+    // التنقل بين التبويبات
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-indigo-600', 'text-indigo-600', 'font-bold');
+        btn.classList.add('border-transparent', 'text-gray-500');
+      });
+
+      const activeBtn = document.getElementById('btn-' + tabId);
+      activeBtn.classList.add('border-indigo-600', 'text-indigo-600', 'font-bold');
+      activeBtn.classList.remove('border-transparent', 'text-gray-500');
+
+      if (tabId === 'tab-vouchers') renderVouchers();
+      if (tabId === 'tab-overdue') renderOverdue();
+      if (tabId === 'tab-reports') populateReportCustomerSelect();
+    }
+
+    // إدارة النوافذ المنبثقة
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+      if (id === 'addVoucherModal') populateVoucherCustomerSelect();
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    // ================= 1. إدارة العملاء =================
+    async function handleSaveCustomer(e) {
+      e.preventDefault();
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const notifySetting = document.getElementById('custNotifySetting').value;
+      const notes = document.getElementById('custNotes').value.trim();
+
+      await db.customers.add({
+        name, phone, notifySetting, notes, createdAt: new Date().toISOString()
+      });
+
+      document.getElementById('addCustomerForm').reset();
+      closeModal('addCustomerModal');
+      await refreshAllData();
+    }
+
+    async function calculateCustomerBalance(customerId) {
+      const vouchers = await db.vouchers.where('customerId').equals(customerId).toArray();
+      let balance = 0; // موجب = دين على العميل لصالحك، سالب = للعميل عليك
+      vouchers.forEach(v => {
+        if (v.type === 'debit') balance += v.amount;
+        else balance -= v.amount;
+      });
+      return balance;
+    }
+
+    async function renderCustomers() {
+      const grid = document.getElementById('customersGrid');
+      const search = document.getElementById('customerSearchInput').value.toLowerCase();
+      const sort = document.getElementById('customerSortSelect').value;
+
+      let customers = await db.customers.toArray();
+      
+      // إحساب الأرصدة لكل عميل
+      for (let c of customers) {
+        c.balance = await calculateCustomerBalance(c.id);
+      }
+
+      // التصفية والبحث
+      if (search) {
+        customers = customers.filter(c => c.name.toLowerCase().includes(search) || c.phone.includes(search));
+      }
+
+      // الترتيب
+      if (sort === 'name') {
+        customers.sort((a,b) => a.name.localeCompare(b.name, 'ar'));
+      } else if (sort === 'balance-desc') {
+        customers.sort((a,b) => b.balance - a.balance);
+      } else if (sort === 'balance-asc') {
+        customers.sort((a,b) => a.balance - b.balance);
+      }
+
+      grid.innerHTML = '';
+
+      if (customers.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">لا يوجد عملاء مضافين حالياً.</div>`;
+        return;
+      }
+
+      customers.forEach(c => {
+        const isDebt = c.balance > 0;
+        const balanceColor = isDebt ? 'text-red-600' : (c.balance < 0 ? 'text-emerald-600' : 'text-gray-600');
+        const balanceText = Math.abs(c.balance).toFixed(2);
+        const statusLabel = isDebt ? 'مطلوب منه (دين)' : (c.balance < 0 ? 'له رصيد مدفوع' : 'خالي من الديون');
+
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition flex flex-col justify-between';
+        card.innerHTML = `
+          <div>
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h3 class="font-bold text-gray-800 text-base">${c.name}</h3>
+                <p class="text-xs text-gray-500"><i class="fa-solid fa-phone text-xs"></i> ${c.phone}</p>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${c.notifySetting==='none'?'bg-gray-100 text-gray-500':'bg-indigo-50 text-indigo-600'}">
+                ${c.notifySetting==='all'?'إشعارات شاملة':(c.notifySetting==='reminders_only'?'تذكيرات فقط':'موقف الإشعارات')}
+              </span>
+            </div>
+            <div class="mt-4 p-3 bg-gray-50 rounded-xl flex justify-between items-center">
+              <span class="text-xs text-gray-500 font-semibold">${statusLabel}:</span>
+              <span class="font-extrabold text-base ${balanceColor}">${balanceText} <span class="text-xs font-normal">ريال</span></span>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center gap-2">
+            <button onclick="quickAddVoucherForCustomer(${c.id})" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1">
+              <i class="fa-solid fa-plus text-[10px]"></i> إضافة سند
+            </button>
+            <div class="flex items-center gap-1">
+              <button onclick="sendQuickWhatsApp(${c.id})" title="إرسال رسالة واتساب" class="bg-emerald-500 hover:bg-emerald-600 text-white w-8 h-8 rounded-lg flex items-center justify-center transition">
+                <i class="fa-brand fa-whatsapp text-sm"></i>
+              </button>
+              <button onclick="deleteCustomer(${c.id})" title="حذف العميل" class="bg-red-50 hover:bg-red-100 text-red-600 w-8 h-8 rounded-lg flex items-center justify-center transition">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    async function deleteCustomer(id) {
+      if (confirm('هل أنت تأكد من حذف العميل وكافة السندات التابعة له؟')) {
+        await db.customers.delete(id);
+        await db.vouchers.where('customerId').equals(id).delete();
+        await refreshAllData();
+      }
+    }
+
+    // ================= 2. إدارة السندات والعمليات =================
+    async function populateVoucherCustomerSelect() {
+      const select = document.getElementById('vouchCustomerSelect');
+      const customers = await db.customers.toArray();
+      select.innerHTML = '<option value="">-- اختر العميل --</option>';
+      customers.forEach(c => {
+        select.innerHTML += `<option value="${c.id}">${c.name} (${c.phone})</option>`;
+      });
+    }
+
+    async function updateVoucherCustomerInfo() {
+      const custId = parseInt(document.getElementById('vouchCustomerSelect').value);
+      const balanceText = document.getElementById('vouchCustBalanceText');
+      if (custId) {
+        const bal = await calculateCustomerBalance(custId);
+        balanceText.textContent = `${Math.abs(bal).toFixed(2)} ريال (${bal > 0 ? 'مطلوب منه' : (bal < 0 ? 'له رصيد' : 'خالي')})`;
+      } else {
+        balanceText.textContent = '0.00';
+      }
+    }
+
+    async function handleSaveVoucher(e) {
+      e.preventDefault();
+      const customerId = parseInt(document.getElementById('vouchCustomerSelect').value);
+      const type = document.getElementById('vouchType').value;
+      const amount = parseFloat(document.getElementById('vouchAmount').value);
+      const date = document.getElementById('vouchDate').value;
+      const dueDate = document.getElementById('vouchDueDate').value || null;
+      const notes = document.getElementById('vouchNotes').value.trim();
+
+      if (!customerId || isNaN(amount)) {
+        alert('يرجى تعبئة الحقول الأساسية بشكل صحيح');
+        return;
+      }
+
+      await db.vouchers.add({
+        customerId, type, amount, date, dueDate, notes, createdAt: new Date().toISOString()
+      });
+
+      // إرسال الإشعار التلقائي إذا تم تفعيل الخيار للعميل
+      const customer = await db.customers.get(customerId);
+      if (customer && customer.notifySetting === 'all') {
+        sendVoucherNotification(customer, type, amount, notes);
+      }
+
+      document.getElementById('addVoucherForm').reset();
+      closeModal('addVoucherModal');
+      await refreshAllData();
+    }
+
+    function sendVoucherNotification(customer, type, amount, notes) {
+      let template = type === 'credit' ? appSettings.tplCredit : appSettings.tplDebit;
+      let msg = template
+        .replace(/{الاسم}/g, customer.name)
+        .replace(/{المبلغ}/g, amount.toFixed(2))
+        .replace(/{المحل}/g, appSettings.shopName)
+        .replace(/{البيان}/g, notes || 'بدون');
+
+      const url = `https://wa.me/${cleanPhone(customer.phone)}?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+    }
+
+    async function renderVouchers() {
+      const tbody = document.getElementById('vouchersTableBody');
+      const search = document.getElementById('voucherSearchInput').value.toLowerCase();
+
+      let vouchers = await db.vouchers.reverse().toArray();
+      const customersMap = new Map();
+      (await db.customers.toArray()).forEach(c => customersMap.set(c.id, c));
+
+      if (search) {
+        vouchers = vouchers.filter(v => {
+          const c = customersMap.get(v.customerId);
+          return (c && c.name.toLowerCase().includes(search)) || (v.notes && v.notes.toLowerCase().includes(search));
+        });
+      }
+
+      tbody.innerHTML = '';
+      if (vouchers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-400">لا توجد سندات مسجلة</td></tr>`;
+        return;
+      }
+
+      vouchers.forEach(v => {
+        const cust = customersMap.get(v.customerId);
+        const isDebit = v.type === 'debit';
+        const typeBadge = isDebit ? 
+          '<span class="bg-red-50 text-red-600 px-2.5 py-1 rounded-full text-xs font-bold">صرف (دين)</span>' : 
+          '<span class="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full text-xs font-bold">قبض (سداد)</span>';
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50 border-b border-gray-100';
+        tr.innerHTML = `
+          <td class="p-3 text-xs text-gray-600">${v.date}</td>
+          <td class="p-3 font-bold text-gray-800">${cust ? cust.name : 'عميل محذوف'}</td>
+          <td class="p-3">${typeBadge}</td>
+          <td class="p-3 font-bold text-sm ${isDebit?'text-red-600':'text-emerald-600'}">${v.amount.toFixed(2)}</td>
+          <td class="p-3 text-xs text-gray-500 max-w-xs truncate">${v.notes || '-'}</td>
+          <td class="p-3 text-xs text-amber-700 font-semibold">${v.dueDate || '-'}</td>
+          <td class="p-3 text-center">
+            <button onclick="deleteVoucher(${v.id})" class="text-red-500 hover:text-red-700 text-xs p-1">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function deleteVoucher(id) {
+      if (confirm('هل أنت تأكد من حذف هذا السند؟')) {
+        await db.vouchers.delete(id);
+        await refreshAllData();
+      }
+    }
+
+    function quickAddVoucherForCustomer(custId) {
+      openModal('addVoucherModal');
+      document.getElementById('vouchCustomerSelect').value = custId;
+      updateVoucherCustomerInfo();
+    }
+
+    // ================= 3. متابعة المتأخرين وتذكيرات الرسائل =================
+    async function renderOverdue() {
+      const container = document.getElementById('overdueList');
+      const today = new Date().toISOString().split('T')[0];
+      
+      const customers = await db.customers.toArray();
+      const overdueItems = [];
+
+      for (let c of customers) {
+        if (c.notifySetting === 'none') continue;
+        
+        // البحث عن السندات ذات الاستحقاق المنتهي وبها دين
+        const vouchers = await db.vouchers.where('customerId').equals(c.id).toArray();
+        const overVouchers = vouchers.filter(v => v.dueDate && v.dueDate < today && v.type === 'debit');
+
+        if (overVouchers.length > 0) {
+          const totalBalance = await calculateCustomerBalance(c.id);
+          if (totalBalance > 0) {
+            overdueItems.push({
+              customer: c,
+              balance: totalBalance,
+              overdueVouchers: overVouchers
+            });
+          }
+        }
+      }
+
+      // تحديث شارة العدد
+      const badge = document.getElementById('overdueBadge');
+      if (overdueItems.length > 0) {
+        badge.textContent = overdueItems.length;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+
+      container.innerHTML = '';
+      if (overdueItems.length === 0) {
+        container.innerHTML = `<div class="bg-white rounded-2xl p-8 text-center text-gray-400">ممتاز! لا يوجد أي عملاء متأخرين عن السداد حالياً.</div>`;
+        return;
+      }
+
+      overdueItems.forEach(item => {
+        const c = item.customer;
+        const div = document.createElement('div');
+        div.className = 'bg-white rounded-2xl p-5 shadow-sm border border-red-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4';
+        
+        div.innerHTML = `
+          <div>
+            <div class="flex items-center gap-2">
+              <h4 class="font-bold text-gray-800 text-base">${c.name}</h4>
+              <span class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-md font-bold">متأخر عن السداد</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-phone"></i> ${c.phone}</p>
+            <p class="text-xs text-red-600 mt-1 font-semibold">المبلغ المطلوب سداده: <span class="font-extrabold text-sm">${item.balance.toFixed(2)}</span> ريال</p>
+          </div>
+
+          <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+            <button onclick="sendReminderWhatsApp(${c.id}, ${item.balance})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition">
+              <i class="fa-brands fa-whatsapp text-sm"></i> تذكير واتساب
+            </button>
+            <button onclick="sendReminderSMS(${c.id}, ${item.balance})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition">
+              <i class="fa-solid fa-comment-sms"></i> تذكير SMS
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function sendReminderWhatsApp(custId, balance) {
+      db.customers.get(custId).then(c => {
+        let msg = appSettings.tplReminder
+          .replace(/{الاسم}/g, c.name)
+          .replace(/{المبلغ}/g, balance.toFixed(2))
+          .replace(/{المحل}/g, appSettings.shopName);
+        
+        const url = `https://wa.me/${cleanPhone(c.phone)}?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+      });
+    }
+
+    function sendReminderSMS(custId, balance) {
+      db.customers.get(custId).then(c => {
+        let msg = appSettings.tplReminder
+          .replace(/{الاسم}/g, c.name)
+          .replace(/{المبلغ}/g, balance.toFixed(2))
+          .replace(/{المحل}/g, appSettings.shopName);
+        
+        const url = `sms:${cleanPhone(c.phone)}?body=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+      });
+    }
+
+    function sendQuickWhatsApp(custId) {
+      db.customers.get(custId).then(async c => {
+        const bal = await calculateCustomerBalance(custId);
+        sendReminderWhatsApp(custId, Math.abs(bal));
+      });
+    }
+
+    function cleanPhone(phone) {
+      return phone.replace(/[^\d]/g, '');
+    }
+
+    // ================= 4. التقارير وكشوفات الحساب =================
+    async function populateReportCustomerSelect() {
+      const select = document.getElementById('reportCustomerSelect');
+      const customers = await db.customers.toArray();
+      select.innerHTML = '<option value="">-- اختر العميل --</option>';
+      customers.forEach(c => {
+        select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+      });
+    }
+
+    async function generateCustomerReport() {
+      const custId = parseInt(document.getElementById('reportCustomerSelect').value);
+      const reportType = document.getElementById('reportTypeSelect').value;
+      const container = document.getElementById('reportContainer');
+
+      if (!custId) {
+        alert('يرجى اختيار العميل أولاً');
+        return;
+      }
+
+      const customer = await db.customers.get(custId);
+      let vouchers = await db.vouchers.where('customerId').equals(custId).sortBy('date');
+      
+      if (reportType === 'debit') vouchers = vouchers.filter(v => v.type === 'debit');
+      if (reportType === 'credit') vouchers = vouchers.filter(v => v.type === 'credit');
+
+      let currentBal = 0;
+      let totalDebit = 0;
+      let totalCredit = 0;
+
+      let rowsHtml = '';
+      vouchers.forEach(v => {
+        if (v.type === 'debit') {
+          currentBal += v.amount;
+          totalDebit += v.amount;
+        } else {
+          currentBal -= v.amount;
+          totalCredit += v.amount;
+        }
+
+        rowsHtml += `
+          <tr class="border-b border-gray-100 text-xs">
+            <td class="py-2.5 px-2 text-gray-600">${v.date}</td>
+            <td class="py-2.5 px-2 font-bold ${v.type==='debit'?'text-red-600':'text-emerald-600'}">
+              ${v.type==='debit'?'سند صرف (دين)':'سند قبض (سداد)'}
+            </td>
+            <td class="py-2.5 px-2 text-gray-700">${v.notes || '-'}</td>
+            <td class="py-2.5 px-2 font-bold text-red-600">${v.type==='debit'?v.amount.toFixed(2):'-'}</td>
+            <td class="py-2.5 px-2 font-bold text-emerald-600">${v.type==='credit'?v.amount.toFixed(2):'-'}</td>
+            <td class="py-2.5 px-2 font-extrabold ${currentBal>0?'text-red-600':'text-emerald-600'}">${currentBal.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      container.innerHTML = `
+        <div class="print-header text-center border-b border-gray-200 pb-4 mb-4">
+          <h2 class="text-2xl font-extrabold text-indigo-700">${appSettings.shopName}</h2>
+          <p class="text-sm text-gray-600 mt-1 font-bold">كشف حساب تفصيلي للعميل</p>
+          <p class="text-xs text-gray-400 mt-1">تاريخ الاستخراج: ${new Date().toLocaleDateString('ar')}</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl text-xs mb-6 border border-gray-200">
+          <div>
+            <p><span class="font-bold text-gray-700">اسم العميل:</span> ${customer.name}</p>
+            <p class="mt-1"><span class="font-bold text-gray-700">رقم الهاتف:</span> ${customer.phone}</p>
+          </div>
+          <div class="text-left">
+            <p><span class="font-bold text-gray-700">إجمالي الديون (صرف):</span> <span class="text-red-600 font-bold">${totalDebit.toFixed(2)}</span></p>
+            <p class="mt-1"><span class="font-bold text-gray-700">إجمالي السداد (قبض):</span> <span class="text-emerald-600 font-bold">${totalCredit.toFixed(2)}</span></p>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-right">
+            <thead class="bg-gray-100 text-gray-700 text-xs font-bold">
+              <tr>
+                <th class="py-2 px-2">التاريخ</th>
+                <th class="py-2 px-2">نوع الحركة</th>
+                <th class="py-2 px-2">البيان</th>
+                <th class="py-2 px-2">مدين (دين)</th>
+                <th class="py-2 px-2">دائن (سداد)</th>
+                <th class="py-2 px-2">الرصيد المتبقي</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml || '<tr><td colspan="6" class="text-center py-6 text-gray-400">لا توجد سندات للعميل في هذه الفئة</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center text-sm">
+          <span class="font-bold text-gray-700">صافي الرصيد المتبقي المستحق:</span>
+          <span class="text-xl font-extrabold ${currentBal>0?'text-red-600':'text-emerald-600'}">
+            ${Math.abs(currentBal).toFixed(2)} ريال (${currentBal > 0 ? 'مطلوب من العميل' : 'رصيد للعميل'})
+          </span>
+        </div>
+      `;
+    }
+
+    // تحديث الإحصائيات الشاملة
+    async function updateOverallStats() {
+      const customers = await db.customers.toArray();
+      const vouchers = await db.vouchers.toArray();
+
+      document.getElementById('statTotalCustomers').textContent = customers.length;
+
+      let totalDebts = 0;
+      let totalCredits = 0;
+
+      for (let c of customers) {
+        const bal = await calculateCustomerBalance(c.id);
+        if (bal > 0) totalDebts += bal;
+        else totalCredits += Math.abs(bal);
+      }
+
+      document.getElementById('statTotalDebts').textContent = totalDebts.toFixed(2);
+      document.getElementById('statTotalCredits').textContent = totalCredits.toFixed(2);
+
+      // حساب عدد المتأخرين
+      const today = new Date().toISOString().split('T')[0];
+      let overdueCount = 0;
+      for (let c of customers) {
+        const cVouchers = vouchers.filter(v => v.customerId === c.id && v.dueDate && v.dueDate < today && v.type === 'debit');
+        if (cVouchers.length > 0) overdueCount++;
+      }
+      document.getElementById('statOverdueCount').textContent = overdueCount;
+    }
+
+    async function refreshAllData() {
+      await renderCustomers();
+      await updateOverallStats();
+    }
+  </script>
+</body>
+</html>
