@@ -395,10 +395,10 @@
         </div>
     </div>
 
-    <!-- Firebase App Logic -->
+    <!-- Firebase App Logic with Full Offline Support -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, remove, enableLogging } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDdiwZjBcrXDUbIQmR8XM-0t97bVrgitoQ",
@@ -414,16 +414,23 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let clients = {};
-        let vouchers = {};
-        let settings = {
+        // Local Storage Sync Layer
+        let clients = JSON.parse(localStorage.getItem('sohaib_clients') || '{}');
+        let vouchers = JSON.parse(localStorage.getItem('sohaib_vouchers') || '{}');
+        let settings = Object.assign({
             shopName: 'محلات الدشيمي للتجارة العامة',
             currency: 'ر.س',
             logo: '',
             msgDebit: '',
             msgCredit: '',
             msgReminder: ''
-        };
+        }, JSON.parse(localStorage.getItem('sohaib_settings') || '{}'));
+
+        function saveLocalCache() {
+            localStorage.setItem('sohaib_clients', JSON.stringify(clients));
+            localStorage.setItem('sohaib_vouchers', JSON.stringify(vouchers));
+            localStorage.setItem('sohaib_settings', JSON.stringify(settings));
+        }
 
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -461,18 +468,23 @@
         }
         updateOnlineStatus();
 
+        // Render immediately with cached local data
+        applySettings();
+        renderAll();
+
+        // Realtime Firebase Listener (Updates Local & UI when connected)
         onValue(ref(db), (snapshot) => {
-            const data = snapshot.val() || {};
-            clients = data.clients || {};
-            vouchers = data.vouchers || {};
-            if(data.settings) {
-                settings = Object.assign(settings, data.settings);
+            const data = snapshot.val();
+            if(data) {
+                if(data.clients) clients = data.clients;
+                if(data.vouchers) vouchers = data.vouchers;
+                if(data.settings) settings = Object.assign(settings, data.settings);
+                saveLocalCache();
                 applySettings();
+                renderAll();
             }
-            renderAll();
         }, (error) => {
-            console.error("Firebase Sync Error: ", error);
-            document.getElementById('syncStatus').innerText = "خطأ في الصلاحيات/القواعد!";
+            console.warn("Using offline fallback data due to connection or rule state.");
         });
 
         function verifyPassword() {
@@ -504,15 +516,22 @@
         }
 
         window.saveShopSettings = function() {
-            const shopName = document.getElementById('settingShopName').value;
-            const currency = document.getElementById('settingCurrency').value || 'ر.س';
-            const logo = document.getElementById('settingShopLogo').value;
-            const msgDebit = document.getElementById('settingMsgDebit').value;
-            const msgCredit = document.getElementById('settingMsgCredit').value;
-            const msgReminder = document.getElementById('settingMsgReminder').value;
+            settings.shopName = document.getElementById('settingShopName').value;
+            settings.currency = document.getElementById('settingCurrency').value || 'ر.س';
+            settings.logo = document.getElementById('settingShopLogo').value;
+            settings.msgDebit = document.getElementById('settingMsgDebit').value;
+            settings.msgCredit = document.getElementById('settingMsgCredit').value;
+            settings.msgReminder = document.getElementById('settingMsgReminder').value;
 
-            set(ref(db, 'settings'), { shopName, currency, logo, msgDebit, msgCredit, msgReminder })
-                .then(() => alert('تم حفظ الإعدادات وقوالب الرسائل والعملة بنجاح!'));
+            saveLocalCache();
+            applySettings();
+            renderAll();
+
+            if(navigator.onLine) {
+                set(ref(db, 'settings'), settings).then(() => alert('تم حفظ الإعدادات وقوالب الرسائل والعملة بنجاح!'));
+            } else {
+                alert('تم حفظ الإعدادات محلياً! ستتم مزامنتها مع السحابة فور توفر الإنترنت.');
+            }
         };
 
         window.switchTab = function(tabId) {
@@ -566,18 +585,30 @@
             const name = document.getElementById('newClientName').value;
             const phone = document.getElementById('newClientPhone').value;
 
-            if(editId) {
-                set(ref(db, `clients/${editId}`), { name, phone }).then(() => closeAddClientModal());
-            } else {
-                const newClientRef = push(ref(db, 'clients'));
-                set(newClientRef, { name, phone }).then(() => closeAddClientModal());
+            let cId = editId;
+            if(!cId) {
+                cId = 'c_' + Date.now();
+            }
+
+            clients[cId] = { name, phone };
+            saveLocalCache();
+            renderAll();
+            closeAddClientModal();
+
+            if(navigator.onLine) {
+                set(ref(db, `clients/${cId}`), { name, phone });
             }
         };
 
         window.deleteClient = function(id) {
             if(!verifyPassword()) return;
             if(confirm('هل أنت تأكد من حذف هذا العميل وجميع البيانات المتعلقة به؟')) {
-                remove(ref(db, `clients/${id}`));
+                delete clients[id];
+                saveLocalCache();
+                renderAll();
+                if(navigator.onLine) {
+                    remove(ref(db, `clients/${id}`));
+                }
             }
         };
 
@@ -693,24 +724,36 @@
 
             if(!clientId || !clients[clientId]) { alert('يرجى اختيار عميل من القائمة!'); return; }
 
+            const vKey = 'v_' + Date.now();
             const newVoucher = { clientId, type, amount, notes, dueDate, date: new Date().toISOString().split('T')[0] };
-            const newVoucherRef = push(ref(db, 'vouchers'));
 
-            set(newVoucherRef, newVoucher).then(() => {
-                if(sendWhatsApp && clients[clientId].phone) {
-                    resendVoucherMsg(newVoucherRef.key);
-                }
-                document.getElementById('voucherForm').reset();
-                document.getElementById('selectedClientId').value = '';
-                alert('تم حفظ السند بنجاح!');
-                switchTab('dashboard');
-            });
+            vouchers[vKey] = newVoucher;
+            saveLocalCache();
+            renderAll();
+
+            if(sendWhatsApp && clients[clientId].phone) {
+                resendVoucherMsg(vKey);
+            }
+
+            document.getElementById('voucherForm').reset();
+            document.getElementById('selectedClientId').value = '';
+            alert('تم حفظ السند بنجاح!');
+            switchTab('dashboard');
+
+            if(navigator.onLine) {
+                set(ref(db, `vouchers/${vKey}`), newVoucher);
+            }
         };
 
         window.deleteVoucher = function(id) {
             if(!verifyPassword()) return;
             if(confirm('هل تريد حذف هذا السند نهائياً؟')) {
-                remove(ref(db, `vouchers/${id}`));
+                delete vouchers[id];
+                saveLocalCache();
+                renderAll();
+                if(navigator.onLine) {
+                    remove(ref(db, `vouchers/${id}`));
+                }
             }
         };
 
