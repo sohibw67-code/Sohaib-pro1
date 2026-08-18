@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Sohaib Pro - نظام إدارة الديون</title>
+    <title id="pageTitle">Sohaib Pro - نظام إدارة المحل والديون</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -336,6 +336,25 @@
 
     </main>
 
+    <!-- Custom Password Modal (حل أزمة الحظر على الكمبيوتر والهاتف) -->
+    <div id="passwordModal" class="fixed inset-0 bg-slate-900/60 hidden z-[60] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-xs w-full p-5 space-y-4 shadow-2xl text-center border border-slate-100">
+            <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 text-base">كلمة سر السرية</h3>
+                <p class="text-xs text-slate-500">يرجى إدخال كلمة السر للاستمرار</p>
+            </div>
+            <input type="password" id="modalPasswordInput" placeholder="أدخل الرقم السري..." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-center text-sm font-bold focus:ring-2 focus:ring-indigo-500">
+            <p id="passwordErrorMsg" class="text-xs text-rose-500 hidden font-bold">كلمة السر غير صحيحة!</p>
+            <div class="flex gap-2">
+                <button type="button" onclick="closePasswordModal()" class="w-1/2 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">إلغاء</button>
+                <button type="button" onclick="confirmPasswordAction()" class="w-1/2 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal إضافة / تعديل عميل -->
     <div id="addClientModal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
@@ -496,12 +515,42 @@
             console.warn("Using offline fallback data.");
         });
 
-        function verifyPassword() {
-            const pwd = prompt("يرجى إدخال كلمة السر للاستمرار:");
-            if (pwd === "1234") return true;
-            alert("كلمة السر خاطئة!");
-            return false;
-        }
+        // ------------------ نظام كلمة السر الجديد (المحمي من الحظر) ------------------
+        let pendingAction = null;
+
+        window.verifyPassword = function(actionCallback) {
+            pendingAction = actionCallback;
+            document.getElementById('modalPasswordInput').value = '';
+            document.getElementById('passwordErrorMsg').classList.add('hidden');
+            document.getElementById('passwordModal').classList.remove('hidden');
+            document.getElementById('modalPasswordInput').focus();
+        };
+
+        window.closePasswordModal = function() {
+            document.getElementById('passwordModal').classList.add('hidden');
+            pendingAction = null;
+        };
+
+        window.confirmPasswordAction = function() {
+            const pwd = document.getElementById('modalPasswordInput').value;
+            if (pwd === "1234") {
+                document.getElementById('passwordModal').classList.add('hidden');
+                if (typeof pendingAction === 'function') {
+                    pendingAction();
+                }
+                pendingAction = null;
+            } else {
+                document.getElementById('passwordErrorMsg').classList.remove('hidden');
+            }
+        };
+
+        // دعم الضغط على Enter في إدخال كلمة السر
+        document.getElementById('modalPasswordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                confirmPasswordAction();
+            }
+        });
+        // --------------------------------------------------------------------------
 
         function applySettings() {
             if(settings.shopName) {
@@ -576,14 +625,15 @@
         };
 
         window.editClient = function(id) {
-            if(!verifyPassword()) return;
-            const client = clients[id];
-            if(!client) return;
-            document.getElementById('editClientId').value = id;
-            document.getElementById('clientModalTitle').innerText = 'تعديل بيانات العميل';
-            document.getElementById('newClientName').value = client.name;
-            document.getElementById('newClientPhone').value = client.phone;
-            document.getElementById('addClientModal').classList.remove('hidden');
+            verifyPassword(() => {
+                const client = clients[id];
+                if(!client) return;
+                document.getElementById('editClientId').value = id;
+                document.getElementById('clientModalTitle').innerText = 'تعديل بيانات العميل';
+                document.getElementById('newClientName').value = client.name;
+                document.getElementById('newClientPhone').value = client.phone;
+                document.getElementById('addClientModal').classList.remove('hidden');
+            });
         };
 
         window.closeAddClientModal = () => document.getElementById('addClientModal').classList.add('hidden');
@@ -607,15 +657,14 @@
         };
 
         window.deleteClient = function(id) {
-            if(!verifyPassword()) return;
-            if(confirm('هل أنت تأكد من حذف هذا العميل وجميع البيانات المتعلقة به؟')) {
+            verifyPassword(() => {
                 delete clients[id];
                 saveLocalCache();
                 renderAll();
                 if(navigator.onLine) {
                     remove(ref(db, `clients/${id}`));
                 }
-            }
+            });
         };
 
         window.openClientDetailModal = function(id) {
@@ -707,7 +756,6 @@
             window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         };
 
-        // تم إصلاح النطاق Scope هنا بإضافتها لـ window
         window.sendReminderMsg = function(cId, amount, dueDate) {
             const client = clients[cId];
             if(!client || !client.phone) { alert('العميل لا يمتلك رقم هاتف!'); return; }
@@ -725,22 +773,23 @@
         };
 
         window.editVoucher = function(vId) {
-            if(!verifyPassword()) return;
-            const v = vouchers[vId];
-            if(!v) return;
+            verifyPassword(() => {
+                const v = vouchers[vId];
+                if(!v) return;
 
-            closeClientDetailModal();
-            switchTab('vouchers');
+                closeClientDetailModal();
+                switchTab('vouchers');
 
-            document.getElementById('editVoucherId').value = vId;
-            document.getElementById('voucherFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> تعديل السند المسجل`;
-            document.getElementById('selectedClientId').value = v.clientId;
-            document.getElementById('voucherClientSearch').value = clients[v.clientId]?.name || '';
-            document.getElementById('voucherType').value = v.type;
-            document.getElementById('voucherAmount').value = v.amount;
-            document.getElementById('voucherDueDate').value = v.dueDate || '';
-            document.getElementById('voucherNotes').value = v.notes || '';
-            document.getElementById('cancelVoucherEditBtn').classList.remove('hidden');
+                document.getElementById('editVoucherId').value = vId;
+                document.getElementById('voucherFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> تعديل السند المسجل`;
+                document.getElementById('selectedClientId').value = v.clientId;
+                document.getElementById('voucherClientSearch').value = clients[v.clientId]?.name || '';
+                document.getElementById('voucherType').value = v.type;
+                document.getElementById('voucherAmount').value = v.amount;
+                document.getElementById('voucherDueDate').value = v.dueDate || '';
+                document.getElementById('voucherNotes').value = v.notes || '';
+                document.getElementById('cancelVoucherEditBtn').classList.remove('hidden');
+            });
         };
 
         window.resetVoucherForm = function() {
@@ -786,15 +835,14 @@
         };
 
         window.deleteVoucher = function(id) {
-            if(!verifyPassword()) return;
-            if(confirm('هل تريد حذف هذا السند نهائياً؟')) {
+            verifyPassword(() => {
                 delete vouchers[id];
                 saveLocalCache();
                 renderAll();
                 if(navigator.onLine) {
                     remove(ref(db, `vouchers/${id}`));
                 }
-            }
+            });
         };
 
         window.exportJSONBackup = function() {
