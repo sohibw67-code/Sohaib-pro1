@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Sohaib Pro - نظام إدارة المحل والديون</title>
+    <title id="pageTitle">Sohaib Pro - نظام إدارة الديون</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -301,15 +301,22 @@
                     <h4 class="font-bold text-slate-700 pt-2 border-t border-slate-100"><i class="fa-brands fa-whatsapp text-emerald-600"></i> تخصيص قوالب رسائل الواتساب</h4>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">قالب سند القبض (له)</label>
-                        <textarea id="settingMsgDebit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME}👋%0Aتم تسجيل سند قبض (له) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.%0Aالبيان: {NOTES}%0Aالتاريخ: {DATE}</textarea>
+                        <textarea id="settingMsgDebit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME} 👋
+تم تسجيل سند قبض (له) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.
+البيان: {NOTES}
+التاريخ: {DATE}</textarea>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">قالب سند الصرف (عليه)</label>
-                        <textarea id="settingMsgCredit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME}👋%0Aتم تسجيل سند صرف (عليه) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.%0Aالبيان: {NOTES}%0Aالتاريخ: {DATE}</textarea>
+                        <textarea id="settingMsgCredit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME} 👋
+تم تسجيل سند صرف (عليه) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.
+البيان: {NOTES}
+التاريخ: {DATE}</textarea>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">قالب التذكير بالمستحقات</label>
-                        <textarea id="settingMsgReminder" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">تذكير من {SHOP_NAME}👋%0Aعزيزي {CLIENT_NAME}، نود تذكيركم بموعد سداد المبلغ المستحق بقيمة {AMOUNT} {CURRENCY} بتاريخ {DUE_DATE}.</textarea>
+                        <textarea id="settingMsgReminder" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">تذكير من {SHOP_NAME} 👋
+عزيزي {CLIENT_NAME}، نود تذكيركم بموعد سداد المبلغ المستحق بقيمة {AMOUNT} {CURRENCY} بتاريخ {DUE_DATE}.</textarea>
                     </div>
 
                     <button onclick="saveShopSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs">حفظ التغييرات</button>
@@ -425,9 +432,9 @@
             shopName: 'محلات الدشيمي للتجارة العامة',
             currency: 'ر.س',
             logo: '',
-            msgDebit: '',
-            msgCredit: '',
-            msgReminder: ''
+            msgDebit: 'مرحباً {CLIENT_NAME} 👋\nتم تسجيل سند قبض (له) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.\nالبيان: {NOTES}\nالتاريخ: {DATE}',
+            msgCredit: 'مرحباً {CLIENT_NAME} 👋\nتم تسجيل سند صرف (عليه) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.\nالبيان: {NOTES}\nالتاريخ: {DATE}',
+            msgReminder: 'تذكير من {SHOP_NAME} 👋\nعزيزي {CLIENT_NAME}، نود تذكيركم بموعد سداد المبلغ المستحق بقيمة {AMOUNT} {CURRENCY} بتاريخ {DUE_DATE}.'
         }, JSON.parse(localStorage.getItem('sohaib_settings') || '{}'));
 
         function saveLocalCache() {
@@ -687,8 +694,9 @@
             const client = clients[v.clientId];
             if(!client || !client.phone) { alert('العميل لا يمتلك رقم هاتف مسجل!'); return; }
 
+            const cleanPhone = client.phone.replace(/[^0-9]/g, '');
             const curr = settings.currency || 'ر.س';
-            let template = v.type === 'debit' ? (settings.msgDebit || "تم تسجيل سند قبض له بقيمة {AMOUNT} {CURRENCY}") : (settings.msgCredit || "تم تسجيل سند صرف عليه بقيمة {AMOUNT} {CURRENCY}");
+            let template = v.type === 'debit' ? settings.msgDebit : settings.msgCredit;
             let msg = template.replace('{CLIENT_NAME}', client.name)
                               .replace('{AMOUNT}', v.amount)
                               .replace('{CURRENCY}', curr)
@@ -696,22 +704,24 @@
                               .replace('{DATE}', v.date)
                               .replace('{SHOP_NAME}', settings.shopName || 'المحل');
 
-            window.open(`https://wa.me/${client.phone}?text=${msg}`, '_blank');
+            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         };
 
+        // تم إصلاح النطاق Scope هنا بإضافتها لـ window
         window.sendReminderMsg = function(cId, amount, dueDate) {
             const client = clients[cId];
             if(!client || !client.phone) { alert('العميل لا يمتلك رقم هاتف!'); return; }
 
+            const cleanPhone = client.phone.replace(/[^0-9]/g, '');
             const curr = settings.currency || 'ر.س';
-            let template = settings.msgReminder || "تذكير بموعد سداد المبلغ بقيمة {AMOUNT} {CURRENCY}";
+            let template = settings.msgReminder;
             let msg = template.replace('{CLIENT_NAME}', client.name)
                               .replace('{AMOUNT}', amount)
                               .replace('{CURRENCY}', curr)
                               .replace('{DUE_DATE}', dueDate)
                               .replace('{SHOP_NAME}', settings.shopName || 'المحل');
 
-            window.open(`https://wa.me/${client.phone}?text=${msg}`, '_blank');
+            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         };
 
         window.editVoucher = function(vId) {
