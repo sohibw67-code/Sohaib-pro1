@@ -301,22 +301,15 @@
                     <h4 class="font-bold text-slate-700 pt-2 border-t border-slate-100"><i class="fa-brands fa-whatsapp text-emerald-600"></i> تخصيص قوالب رسائل الواتساب</h4>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">قالب سند القبض (له)</label>
-                        <textarea id="settingMsgDebit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME} 👋
-تم تسجيل سند قبض (له) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.
-البيان: {NOTES}
-التاريخ: {DATE}</textarea>
+                        <textarea id="settingMsgDebit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME}👋%0Aتم تسجيل سند قبض (له) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.%0Aالبيان: {NOTES}%0Aالتاريخ: {DATE}%0A------------------------%0Aإجمالي حسابكم الحالي: {TOTAL_BALANCE} {CURRENCY}</textarea>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">قالب سند الصرف (عليه)</label>
-                        <textarea id="settingMsgCredit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME} 👋
-تم تسجيل سند صرف (عليه) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.
-البيان: {NOTES}
-التاريخ: {DATE}</textarea>
+                        <textarea id="settingMsgCredit" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">مرحباً {CLIENT_NAME}👋%0Aتم تسجيل سند صرف (عليه) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.%0Aالبيان: {NOTES}%0Aالتاريخ: {DATE}%0A------------------------%0Aإجمالي حسابكم الحالي: {TOTAL_BALANCE} {CURRENCY}</textarea>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">قالب التذكير بالمستحقات</label>
-                        <textarea id="settingMsgReminder" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">تذكير من {SHOP_NAME} 👋
-عزيزي {CLIENT_NAME}، نود تذكيركم بموعد سداد المبلغ المستحق بقيمة {AMOUNT} {CURRENCY} بتاريخ {DUE_DATE}.</textarea>
+                        <textarea id="settingMsgReminder" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">تذكير من {SHOP_NAME}👋%0Aعزيزي {CLIENT_NAME}، نود تذكيركم بموعد سداد المبلغ المستحق بقيمة {AMOUNT} {CURRENCY} بتاريخ {DUE_DATE}.%0A------------------------%0Aإجمالي حسابكم الحالي: {TOTAL_BALANCE} {CURRENCY}</textarea>
                     </div>
 
                     <button onclick="saveShopSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs">حفظ التغييرات</button>
@@ -336,25 +329,6 @@
 
     </main>
 
-    <!-- Custom Password Modal (حل أزمة الحظر على الكمبيوتر والهاتف) -->
-    <div id="passwordModal" class="fixed inset-0 bg-slate-900/60 hidden z-[60] flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-2xl max-w-xs w-full p-5 space-y-4 shadow-2xl text-center border border-slate-100">
-            <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-xl">
-                <i class="fa-solid fa-lock"></i>
-            </div>
-            <div>
-                <h3 class="font-bold text-slate-800 text-base">كلمة سر السرية</h3>
-                <p class="text-xs text-slate-500">يرجى إدخال كلمة السر للاستمرار</p>
-            </div>
-            <input type="password" id="modalPasswordInput" placeholder="أدخل الرقم السري..." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-center text-sm font-bold focus:ring-2 focus:ring-indigo-500">
-            <p id="passwordErrorMsg" class="text-xs text-rose-500 hidden font-bold">كلمة السر غير صحيحة!</p>
-            <div class="flex gap-2">
-                <button type="button" onclick="closePasswordModal()" class="w-1/2 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">إلغاء</button>
-                <button type="button" onclick="confirmPasswordAction()" class="w-1/2 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700">تأكيد</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal إضافة / تعديل عميل -->
     <div id="addClientModal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
@@ -367,7 +341,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">رقم الهاتف (مع رمز الدولة بدون +)</label>
-                    <input type="tel" id="newClientPhone" placeholder="966500000000" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500" required>
+                    <input type="tel" id="newClientPhone" placeholder="967770000000" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500" required>
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeAddClientModal()" class="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg">إلغاء</button>
@@ -444,6 +418,68 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // Raw imported clients data from initial app JSON
+        const rawImportedData = [
+            {"name":"احمد مروان","phone":"967779960867","balance":6260},
+            {"name":"محمد ابراهيم النديش زبون","phone":"967771856366","balance":300},
+            {"name":"يحي الناموس","phone":"967775420387","balance":25000},
+            {"name":"علي فارع","phone":"967775499700","balance":60150},
+            {"name":"المحاقري","phone":"","balance":52740},
+            {"name":"محمد الجريدي","phone":"967771779312","balance":11000},
+            {"name":"حلمي مدين","phone":"","balance":1600},
+            {"name":"هاشم العماري","phone":"967770894151","balance":0},
+            {"name":"اصيل العصار","phone":"","balance":4100},
+            {"name":"ون كاش","phone":"","balance":500},
+            {"name":"احمد عامر","phone":"","balance":5300},
+            {"name":"رياض المشرعي","phone":"","balance":2600},
+            {"name":"نسيم","phone":"967775376819","balance":4000},
+            {"name":"عبد الفتاح العميسي","phone":"967781994426","balance":54660},
+            {"name":"مصطفى جيب","phone":"967777205666","balance":1050},
+            {"name":"صهيب","phone":"967774383897","balance":85320},
+            {"name":"صادق السقاف","phone":"967777295427","balance":22550},
+            {"name":"توفيق الهروش","phone":"967773520618","balance":10000},
+            {"name":"شمسان الحالمي","phone":"967782887487","balance":7950},
+            {"name":"يعقوب الدشيمي","phone":"967782011120","balance":20100},
+            {"name":"خالد الصباري","phone":"967777779926","balance":26600},
+            {"name":"سليمان العميسي","phone":"967772231161","balance":24000},
+            {"name":"انور الموجري","phone":"967776934961","balance":10275},
+            {"name":"خليل الصناعي","phone":"967713091817","balance":76570},
+            {"name":"نايف الطيب واتساب","phone":"967734339925","balance":2100},
+            {"name":"عادل اشمح","phone":"967780629383","balance":21960},
+            {"name":"علي1 فارع البقالة","phone":"967778431171","balance":21790},
+            {"name":"محمد العماري","phone":"967775966136","balance":0},
+            {"name":"علي العودي مهندس تلفونات","phone":"967776192215","balance":12200},
+            {"name":"عبدالملك الشدادي","phone":"967780592493","balance":11900},
+            {"name":"الكريمي","phone":"","balance":7100},
+            {"name":"محفظة جوالي","phone":"","balance":1000},
+            {"name":"عمر الجويد","phone":"967776915793","balance":7550},
+            {"name":"اسماعيل العميسي","phone":"967715776517","balance":41940},
+            {"name":"نصر الهجرة","phone":"967736533409","balance":19520},
+            {"name":"عبدالمجيد عران","phone":"","balance":700},
+            {"name":"محمد حيدرة","phone":"967770202925","balance":14550},
+            {"name":"محمود العميسي","phone":"","balance":2500},
+            {"name":"ايمن النمر","phone":"967775694567","balance":6800},
+            {"name":"ياسين الصرعي","phone":"967774249683","balance":49100},
+            {"name":"عبدالعزيز حيدرة","phone":"967772949649","balance":7600},
+            {"name":"محمد صالح العجي","phone":"","balance":1630},
+            {"name":"فكري الرياشي","phone":"967734211321","balance":78115},
+            {"name":"فواد المضرعي","phone":"967772419962","balance":1000},
+            {"name":"العسكري البيت","phone":"967770517109","balance":6100},
+            {"name":"احمد ابراهيم العماري","phone":"967770924127","balance":1550},
+            {"name":"محفظة جيب","phone":"967774383897","balance":10800},
+            {"name":"يحيى الدحم","phone":"","balance":550},
+            {"name":"عمر نوري مهدي","phone":"967770196026","balance":29300},
+            {"name":"محمد اغا زبون","phone":"967776183727","balance":1000},
+            {"name":"عماد عدنان","phone":"967783412729","balance":67200},
+            {"name":"زكي الريدي","phone":"967777725564","balance":16715},
+            {"name":"محمد قايد العماري","phone":"967773015876","balance":13800},
+            {"name":"محمد العميسي","phone":"967774461410","balance":6510},
+            {"name":"احمد النديش","phone":"","balance":6750},
+            {"name":"زبن الله","phone":"967777620778","balance":5000},
+            {"name":"منصور العميسي","phone":"967782768820","balance":69380},
+            {"name":"نبيل القحمي","phone":"967777482133","balance":5565}
+        ];
+
         // Local Storage Sync Layer
         let clients = JSON.parse(localStorage.getItem('sohaib_clients') || '{}');
         let vouchers = JSON.parse(localStorage.getItem('sohaib_vouchers') || '{}');
@@ -451,10 +487,30 @@
             shopName: 'محلات الدشيمي للتجارة العامة',
             currency: 'ر.س',
             logo: '',
-            msgDebit: 'مرحباً {CLIENT_NAME} 👋\nتم تسجيل سند قبض (له) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.\nالبيان: {NOTES}\nالتاريخ: {DATE}',
-            msgCredit: 'مرحباً {CLIENT_NAME} 👋\nتم تسجيل سند صرف (عليه) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.\nالبيان: {NOTES}\nالتاريخ: {DATE}',
-            msgReminder: 'تذكير من {SHOP_NAME} 👋\nعزيزي {CLIENT_NAME}، نود تذكيركم بموعد سداد المبلغ المستحق بقيمة {AMOUNT} {CURRENCY} بتاريخ {DUE_DATE}.'
+            msgDebit: '',
+            msgCredit: '',
+            msgReminder: ''
         }, JSON.parse(localStorage.getItem('sohaib_settings') || '{}'));
+
+        // Initialize default imported clients and balances if storage is empty
+        if (Object.keys(clients).length === 0) {
+            rawImportedData.forEach((item, index) => {
+                const cId = 'c_imp_' + index;
+                clients[cId] = { name: item.name, phone: item.phone };
+                if (item.balance > 0) {
+                    const vId = 'v_imp_' + index;
+                    vouchers[vId] = {
+                        clientId: cId,
+                        type: 'debit',
+                        amount: item.balance,
+                        notes: 'رصيد مرحل سابقاً',
+                        dueDate: '',
+                        date: new Date().toISOString().split('T')[0]
+                    };
+                }
+            });
+            saveLocalCache();
+        }
 
         function saveLocalCache() {
             localStorage.setItem('sohaib_clients', JSON.stringify(clients));
@@ -515,42 +571,19 @@
             console.warn("Using offline fallback data.");
         });
 
-        // ------------------ نظام كلمة السر الجديد (المحمي من الحظر) ------------------
-        let pendingAction = null;
+        function verifyPassword() {
+            const pwd = prompt("يرجى إدخال كلمة السر للاستمرار:");
+            if (pwd === "1234") return true;
+            alert("كلمة السر خاطئة!");
+            return false;
+        }
 
-        window.verifyPassword = function(actionCallback) {
-            pendingAction = actionCallback;
-            document.getElementById('modalPasswordInput').value = '';
-            document.getElementById('passwordErrorMsg').classList.add('hidden');
-            document.getElementById('passwordModal').classList.remove('hidden');
-            document.getElementById('modalPasswordInput').focus();
-        };
-
-        window.closePasswordModal = function() {
-            document.getElementById('passwordModal').classList.add('hidden');
-            pendingAction = null;
-        };
-
-        window.confirmPasswordAction = function() {
-            const pwd = document.getElementById('modalPasswordInput').value;
-            if (pwd === "1234") {
-                document.getElementById('passwordModal').classList.add('hidden');
-                if (typeof pendingAction === 'function') {
-                    pendingAction();
-                }
-                pendingAction = null;
-            } else {
-                document.getElementById('passwordErrorMsg').classList.remove('hidden');
-            }
-        };
-
-        // دعم الضغط على Enter في إدخال كلمة السر
-        document.getElementById('modalPasswordInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                confirmPasswordAction();
-            }
-        });
-        // --------------------------------------------------------------------------
+        function calculateClientNetBalance(cId) {
+            const cV = Object.values(vouchers).filter(v => v.clientId === cId);
+            let cDebit = 0, cCredit = 0;
+            cV.forEach(v => v.type === 'debit' ? cDebit += v.amount : cCredit += v.amount);
+            return cDebit - cCredit;
+        }
 
         function applySettings() {
             if(settings.shopName) {
@@ -625,15 +658,14 @@
         };
 
         window.editClient = function(id) {
-            verifyPassword(() => {
-                const client = clients[id];
-                if(!client) return;
-                document.getElementById('editClientId').value = id;
-                document.getElementById('clientModalTitle').innerText = 'تعديل بيانات العميل';
-                document.getElementById('newClientName').value = client.name;
-                document.getElementById('newClientPhone').value = client.phone;
-                document.getElementById('addClientModal').classList.remove('hidden');
-            });
+            if(!verifyPassword()) return;
+            const client = clients[id];
+            if(!client) return;
+            document.getElementById('editClientId').value = id;
+            document.getElementById('clientModalTitle').innerText = 'تعديل بيانات العميل';
+            document.getElementById('newClientName').value = client.name;
+            document.getElementById('newClientPhone').value = client.phone;
+            document.getElementById('addClientModal').classList.remove('hidden');
         };
 
         window.closeAddClientModal = () => document.getElementById('addClientModal').classList.add('hidden');
@@ -657,14 +689,15 @@
         };
 
         window.deleteClient = function(id) {
-            verifyPassword(() => {
+            if(!verifyPassword()) return;
+            if(confirm('هل أنت تأكد من حذف هذا العميل وجميع البيانات المتعلقة به؟')) {
                 delete clients[id];
                 saveLocalCache();
                 renderAll();
                 if(navigator.onLine) {
                     remove(ref(db, `clients/${id}`));
                 }
-            });
+            }
         };
 
         window.openClientDetailModal = function(id) {
@@ -743,53 +776,60 @@
             const client = clients[v.clientId];
             if(!client || !client.phone) { alert('العميل لا يمتلك رقم هاتف مسجل!'); return; }
 
-            const cleanPhone = client.phone.replace(/[^0-9]/g, '');
             const curr = settings.currency || 'ر.س';
-            let template = v.type === 'debit' ? settings.msgDebit : settings.msgCredit;
-            let msg = template.replace('{CLIENT_NAME}', client.name)
-                              .replace('{AMOUNT}', v.amount)
-                              .replace('{CURRENCY}', curr)
-                              .replace('{NOTES}', v.notes || '-')
-                              .replace('{DATE}', v.date)
-                              .replace('{SHOP_NAME}', settings.shopName || 'المحل');
+            const totalNetBalance = calculateClientNetBalance(v.clientId).toFixed(2);
 
-            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+            let template = v.type === 'debit' 
+                ? (settings.msgDebit || "مرحباً {CLIENT_NAME}👋%0Aتم تسجيل سند قبض (له) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.%0Aالبيان: {NOTES}%0Aالتاريخ: {DATE}%0A------------------------%0Aإجمالي حسابكم الحالي: {TOTAL_BALANCE} {CURRENCY}") 
+                : (settings.msgCredit || "مرحباً {CLIENT_NAME}👋%0Aتم تسجيل سند صرف (عليه) جديد بقيمة {AMOUNT} {CURRENCY} لدى {SHOP_NAME}.%0Aالبيان: {NOTES}%0Aالتاريخ: {DATE}%0A------------------------%0Aإجمالي حسابكم الحالي: {TOTAL_BALANCE} {CURRENCY}");
+
+            let msg = template.replace(/{CLIENT_NAME}/g, client.name)
+                              .replace(/{AMOUNT}/g, v.amount)
+                              .replace(/{CURRENCY}/g, curr)
+                              .replace(/{NOTES}/g, v.notes || '-')
+                              .replace(/{DATE}/g, v.date)
+                              .replace(/{SHOP_NAME}/g, settings.shopName || 'المحل')
+                              .replace(/{TOTAL_BALANCE}/g, totalNetBalance);
+
+            window.open(`https://wa.me/${client.phone}?text=${msg}`, '_blank');
         };
 
         window.sendReminderMsg = function(cId, amount, dueDate) {
             const client = clients[cId];
             if(!client || !client.phone) { alert('العميل لا يمتلك رقم هاتف!'); return; }
 
-            const cleanPhone = client.phone.replace(/[^0-9]/g, '');
             const curr = settings.currency || 'ر.س';
-            let template = settings.msgReminder;
-            let msg = template.replace('{CLIENT_NAME}', client.name)
-                              .replace('{AMOUNT}', amount)
-                              .replace('{CURRENCY}', curr)
-                              .replace('{DUE_DATE}', dueDate)
-                              .replace('{SHOP_NAME}', settings.shopName || 'المحل');
+            const totalNetBalance = calculateClientNetBalance(cId).toFixed(2);
 
-            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+            let template = settings.msgReminder || "تذكير من {SHOP_NAME}👋%0Aعزيزي {CLIENT_NAME}، نود تذكيركم بموعد سداد المبلغ المستحق بقيمة {AMOUNT} {CURRENCY} بتاريخ {DUE_DATE}.%0A------------------------%0Aإجمالي حسابكم الحالي: {TOTAL_BALANCE} {CURRENCY}";
+
+            let msg = template.replace(/{CLIENT_NAME}/g, client.name)
+                              .replace(/{AMOUNT}/g, amount)
+                              .replace(/{CURRENCY}/g, curr)
+                              .replace(/{DUE_DATE}/g, dueDate)
+                              .replace(/{SHOP_NAME}/g, settings.shopName || 'المحل')
+                              .replace(/{TOTAL_BALANCE}/g, totalNetBalance);
+
+            window.open(`https://wa.me/${client.phone}?text=${msg}`, '_blank');
         };
 
         window.editVoucher = function(vId) {
-            verifyPassword(() => {
-                const v = vouchers[vId];
-                if(!v) return;
+            if(!verifyPassword()) return;
+            const v = vouchers[vId];
+            if(!v) return;
 
-                closeClientDetailModal();
-                switchTab('vouchers');
+            closeClientDetailModal();
+            switchTab('vouchers');
 
-                document.getElementById('editVoucherId').value = vId;
-                document.getElementById('voucherFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> تعديل السند المسجل`;
-                document.getElementById('selectedClientId').value = v.clientId;
-                document.getElementById('voucherClientSearch').value = clients[v.clientId]?.name || '';
-                document.getElementById('voucherType').value = v.type;
-                document.getElementById('voucherAmount').value = v.amount;
-                document.getElementById('voucherDueDate').value = v.dueDate || '';
-                document.getElementById('voucherNotes').value = v.notes || '';
-                document.getElementById('cancelVoucherEditBtn').classList.remove('hidden');
-            });
+            document.getElementById('editVoucherId').value = vId;
+            document.getElementById('voucherFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> تعديل السند المسجل`;
+            document.getElementById('selectedClientId').value = v.clientId;
+            document.getElementById('voucherClientSearch').value = clients[v.clientId]?.name || '';
+            document.getElementById('voucherType').value = v.type;
+            document.getElementById('voucherAmount').value = v.amount;
+            document.getElementById('voucherDueDate').value = v.dueDate || '';
+            document.getElementById('voucherNotes').value = v.notes || '';
+            document.getElementById('cancelVoucherEditBtn').classList.remove('hidden');
         };
 
         window.resetVoucherForm = function() {
@@ -835,14 +875,15 @@
         };
 
         window.deleteVoucher = function(id) {
-            verifyPassword(() => {
+            if(!verifyPassword()) return;
+            if(confirm('هل تريد حذف هذا السند نهائياً؟')) {
                 delete vouchers[id];
                 saveLocalCache();
                 renderAll();
                 if(navigator.onLine) {
                     remove(ref(db, `vouchers/${id}`));
                 }
-            });
+            }
         };
 
         window.exportJSONBackup = function() {
@@ -909,7 +950,7 @@
                     const net = cDebit - cCredit;
                     return `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 hover:border-indigo-300 transition">
                         <div class="flex justify-between items-start cursor-pointer" onclick="openClientDetailModal('${c.id}')">
-                            <div><h4 class="font-bold text-slate-800">${c.name}</h4><p class="text-xs text-slate-400">${c.phone}</p></div>
+                            <div><h4 class="font-bold text-slate-800">${c.name}</h4><p class="text-xs text-slate-400">${c.phone || 'بدون هاتف'}</p></div>
                             <span class="text-xs px-2.5 py-1 rounded-full font-bold ${net >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
                                 ${net >= 0 ? 'له: ' + net.toFixed(2) : 'عليه: ' + Math.abs(net).toFixed(2)} ${curr}
                             </span>
@@ -994,7 +1035,7 @@
                 const net = cDebit - cCredit;
                 return `<tr class="hover:bg-slate-50">
                     <td class="p-3 font-bold text-slate-800">${c.name}</td>
-                    <td class="p-3 text-slate-500">${c.phone}</td>
+                    <td class="p-3 text-slate-500">${c.phone || '-'}</td>
                     <td class="p-3 text-emerald-600 font-semibold">${cDebit.toFixed(2)}</td>
                     <td class="p-3 text-rose-600 font-semibold">${cCredit.toFixed(2)}</td>
                     <td class="p-3 font-black ${net >= 0 ? 'text-emerald-700':'text-rose-700'}">${net.toFixed(2)} ${curr}</td>
