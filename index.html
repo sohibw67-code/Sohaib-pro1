@@ -153,13 +153,14 @@
             </div>
         </section>
 
-        <!-- 2. إضافة سند جديد -->
+        <!-- 2. إضافة / تعديل سند -->
         <section id="vouchers" class="tab-content">
             <div class="max-w-2xl mx-auto bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-                <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-2">
+                <h3 id="voucherFormTitle" class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-2">
                     <i class="fa-solid fa-file-circle-plus text-indigo-600"></i> تحرير وتثبيت سند جديد
                 </h3>
                 <form id="voucherForm" onsubmit="handleSaveVoucher(event)" class="space-y-4">
+                    <input type="hidden" id="editVoucherId">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">اختر العميل</label>
                         <div class="relative">
@@ -193,9 +194,12 @@
                         <span class="text-xs font-medium text-indigo-800">إرسال إشعار عبر واتساب تلقائياً عند الحفظ</span>
                         <input type="checkbox" id="sendWhatsAppToggle" checked class="w-4 h-4 accent-indigo-600 rounded">
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-md flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-floppy-disk"></i> حفظ وإعادة المزامنة
-                    </button>
+                    <div class="flex gap-2">
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> حفظ وإعادة المزامنة
+                        </button>
+                        <button type="button" id="cancelVoucherEditBtn" onclick="resetVoucherForm()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-3 rounded-xl transition">إلغاء</button>
+                    </div>
                 </form>
             </div>
         </section>
@@ -395,10 +399,10 @@
         </div>
     </div>
 
-    <!-- Firebase App Logic with Offline Queue & Smart Merge -->
+    <!-- Firebase App Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDdiwZjBcrXDUbIQmR8XM-0t97bVrgitoQ",
@@ -414,7 +418,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Local State
+        // Local Storage Sync Layer
         let clients = JSON.parse(localStorage.getItem('sohaib_clients') || '{}');
         let vouchers = JSON.parse(localStorage.getItem('sohaib_vouchers') || '{}');
         let settings = Object.assign({
@@ -426,26 +430,10 @@
             msgReminder: ''
         }, JSON.parse(localStorage.getItem('sohaib_settings') || '{}'));
 
-        let pendingChanges = JSON.parse(localStorage.getItem('sohaib_pending_changes') || 'false');
-
-        function saveLocalCache(isPending = false) {
+        function saveLocalCache() {
             localStorage.setItem('sohaib_clients', JSON.stringify(clients));
             localStorage.setItem('sohaib_vouchers', JSON.stringify(vouchers));
             localStorage.setItem('sohaib_settings', JSON.stringify(settings));
-            if(isPending) {
-                pendingChanges = true;
-                localStorage.setItem('sohaib_pending_changes', 'true');
-            }
-        }
-
-        function syncPendingChangesToCloud() {
-            if(!navigator.onLine) return;
-            const fullData = { clients, vouchers, settings };
-            set(ref(db), fullData).then(() => {
-                pendingChanges = false;
-                localStorage.setItem('sohaib_pending_changes', 'false');
-                console.log("Offline changes synced successfully to Firebase.");
-            }).catch(err => console.error("Sync failed:", err));
         }
 
         let deferredPrompt;
@@ -477,9 +465,6 @@
             if(navigator.onLine) {
                 syncStatus.className = "bg-emerald-500/20 text-emerald-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1";
                 syncStatus.innerHTML = `<span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> متصل ومُزامن بالسحابة`;
-                if(pendingChanges) {
-                    syncPendingChangesToCloud();
-                }
             } else {
                 syncStatus.className = "bg-amber-500/20 text-amber-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1";
                 syncStatus.innerHTML = `<span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span> يعمل بدون إنترنت (محلياً)`;
@@ -487,28 +472,21 @@
         }
         updateOnlineStatus();
 
-        // Immediate UI load from LocalStorage
         applySettings();
         renderAll();
 
-        // Firebase Realtime Listener with Smart Sync Protection
         onValue(ref(db), (snapshot) => {
             const data = snapshot.val();
             if(data) {
-                // If we have unsaved local offline changes, sync them UP instead of letting cloud OVERWRITE local
-                if(pendingChanges && navigator.onLine) {
-                    syncPendingChangesToCloud();
-                } else {
-                    if(data.clients) clients = data.clients;
-                    if(data.vouchers) vouchers = data.vouchers;
-                    if(data.settings) settings = Object.assign(settings, data.settings);
-                    saveLocalCache(false);
-                    applySettings();
-                    renderAll();
-                }
-            } else if(pendingChanges && navigator.onLine) {
-                syncPendingChangesToCloud();
+                if(data.clients) clients = data.clients;
+                if(data.vouchers) vouchers = data.vouchers;
+                if(data.settings) settings = Object.assign(settings, data.settings);
+                saveLocalCache();
+                applySettings();
+                renderAll();
             }
+        }, (error) => {
+            console.warn("Using offline fallback data.");
         });
 
         function verifyPassword() {
@@ -547,15 +525,14 @@
             settings.msgCredit = document.getElementById('settingMsgCredit').value;
             settings.msgReminder = document.getElementById('settingMsgReminder').value;
 
-            saveLocalCache(true);
+            saveLocalCache();
             applySettings();
             renderAll();
 
             if(navigator.onLine) {
-                syncPendingChangesToCloud();
-                alert('تم حفظ الإعدادات وقوالب الرسائل والعملة بنجاح!');
+                set(ref(db, 'settings'), settings).then(() => alert('تم حفظ الإعدادات وقوالب الرسائل والعملة بنجاح!'));
             } else {
-                alert('تم حفظ الإعدادات محلياً! ستتم مزامنتها أوتوماتيكياً فور توفر الإنترنت.');
+                alert('تم حفظ الإعدادات محلياً! ستتم مزامنتها مع السحابة فور توفر الإنترنت.');
             }
         };
 
@@ -613,12 +590,12 @@
             let cId = editId || ('c_' + Date.now());
 
             clients[cId] = { name, phone };
-            saveLocalCache(true);
+            saveLocalCache();
             renderAll();
             closeAddClientModal();
 
             if(navigator.onLine) {
-                syncPendingChangesToCloud();
+                set(ref(db, `clients/${cId}`), { name, phone });
             }
         };
 
@@ -626,10 +603,10 @@
             if(!verifyPassword()) return;
             if(confirm('هل أنت تأكد من حذف هذا العميل وجميع البيانات المتعلقة به؟')) {
                 delete clients[id];
-                saveLocalCache(true);
+                saveLocalCache();
                 renderAll();
                 if(navigator.onLine) {
-                    syncPendingChangesToCloud();
+                    remove(ref(db, `clients/${id}`));
                 }
             }
         };
@@ -659,6 +636,7 @@
                     <td class="p-2 text-slate-500">${v.notes || '-'}</td>
                     <td class="p-2 text-center flex justify-center gap-2">
                         <button onclick="resendVoucherMsg('${v.id}')" title="إعادة إرسال عبر واتساب" class="text-emerald-600 hover:text-emerald-800"><i class="fa-brands fa-whatsapp text-sm"></i></button>
+                        <button onclick="editVoucher('${v.id}')" title="تعديل السند" class="text-slate-400 hover:text-indigo-600"><i class="fa-solid fa-pen text-sm"></i></button>
                         <button onclick="deleteVoucher('${v.id}')" title="حذف السند" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash text-sm"></i></button>
                     </td>
                 </tr>
@@ -671,6 +649,7 @@
 
         window.addVoucherForSpecificClient = function(clientId, clientName) {
             closeClientDetailModal();
+            resetVoucherForm();
             switchTab('vouchers');
             document.getElementById('voucherClientSearch').value = clientName;
             document.getElementById('selectedClientId').value = clientId;
@@ -735,8 +714,36 @@
             window.open(`https://wa.me/${client.phone}?text=${msg}`, '_blank');
         };
 
+        window.editVoucher = function(vId) {
+            if(!verifyPassword()) return;
+            const v = vouchers[vId];
+            if(!v) return;
+
+            closeClientDetailModal();
+            switchTab('vouchers');
+
+            document.getElementById('editVoucherId').value = vId;
+            document.getElementById('voucherFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> تعديل السند المسجل`;
+            document.getElementById('selectedClientId').value = v.clientId;
+            document.getElementById('voucherClientSearch').value = clients[v.clientId]?.name || '';
+            document.getElementById('voucherType').value = v.type;
+            document.getElementById('voucherAmount').value = v.amount;
+            document.getElementById('voucherDueDate').value = v.dueDate || '';
+            document.getElementById('voucherNotes').value = v.notes || '';
+            document.getElementById('cancelVoucherEditBtn').classList.remove('hidden');
+        };
+
+        window.resetVoucherForm = function() {
+            document.getElementById('voucherForm').reset();
+            document.getElementById('editVoucherId').value = '';
+            document.getElementById('selectedClientId').value = '';
+            document.getElementById('voucherFormTitle').innerHTML = `<i class="fa-solid fa-file-circle-plus text-indigo-600"></i> تحرير وتثبيت سند جديد`;
+            document.getElementById('cancelVoucherEditBtn').classList.add('hidden');
+        };
+
         window.handleSaveVoucher = function(e) {
             e.preventDefault();
+            const vIdEdit = document.getElementById('editVoucherId').value;
             const clientId = document.getElementById('selectedClientId').value;
             const type = document.getElementById('voucherType').value;
             const amount = parseFloat(document.getElementById('voucherAmount').value);
@@ -746,24 +753,25 @@
 
             if(!clientId || !clients[clientId]) { alert('يرجى اختيار عميل من القائمة!'); return; }
 
-            const vKey = 'v_' + Date.now();
-            const newVoucher = { clientId, type, amount, notes, dueDate, date: new Date().toISOString().split('T')[0] };
+            const vKey = vIdEdit || ('v_' + Date.now());
+            const currentDate = vIdEdit && vouchers[vIdEdit] ? vouchers[vIdEdit].date : new Date().toISOString().split('T')[0];
 
-            vouchers[vKey] = newVoucher;
-            saveLocalCache(true);
+            const voucherData = { clientId, type, amount, notes, dueDate, date: currentDate };
+
+            vouchers[vKey] = voucherData;
+            saveLocalCache();
             renderAll();
 
             if(sendWhatsApp && clients[clientId].phone) {
                 resendVoucherMsg(vKey);
             }
 
-            document.getElementById('voucherForm').reset();
-            document.getElementById('selectedClientId').value = '';
+            resetVoucherForm();
             alert('تم حفظ السند بنجاح!');
             switchTab('dashboard');
 
             if(navigator.onLine) {
-                syncPendingChangesToCloud();
+                set(ref(db, `vouchers/${vKey}`), voucherData);
             }
         };
 
@@ -771,10 +779,10 @@
             if(!verifyPassword()) return;
             if(confirm('هل تريد حذف هذا السند نهائياً؟')) {
                 delete vouchers[id];
-                saveLocalCache(true);
+                saveLocalCache();
                 renderAll();
                 if(navigator.onLine) {
-                    syncPendingChangesToCloud();
+                    remove(ref(db, `vouchers/${id}`));
                 }
             }
         };
@@ -827,7 +835,8 @@
                     <td class="p-3 text-slate-500">${v.notes || '-'}</td>
                     <td class="p-3 text-center flex justify-center gap-2">
                         <button onclick="resendVoucherMsg('${v.id}')" title="إعادة إرسال الإشعار" class="text-emerald-600 hover:text-emerald-800"><i class="fa-brands fa-whatsapp"></i></button>
-                        <button onclick="deleteVoucher('${v.id}')" title="حذف" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="editVoucher('${v.id}')" title="تعديل السند" class="text-slate-400 hover:text-indigo-600"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteVoucher('${v.id}')" title="حذف السند" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>`;
             }).join('');
@@ -874,8 +883,10 @@
                         <td class="p-2">${v.type === 'debit' ? 'قبض':'صرف'}</td>
                         <td class="p-2 font-bold">${v.amount} ${curr}</td>
                         <td class="p-2 text-slate-500">${v.notes || '-'}</td>
-                        <td class="p-2 text-center no-print">
-                            <button onclick="resendVoucherMsg('${v.id}')" class="text-emerald-600 hover:text-emerald-800"><i class="fa-brands fa-whatsapp"></i></button>
+                        <td class="p-2 text-center flex justify-center gap-2 no-print">
+                            <button onclick="resendVoucherMsg('${v.id}')" class="text-emerald-600 hover:text-emerald-800" title="إعادة إرسال"><i class="fa-brands fa-whatsapp"></i></button>
+                            <button onclick="editVoucher('${v.id}')" class="text-slate-400 hover:text-indigo-600" title="تعديل السند"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteVoucher('${v.id}')" class="text-slate-400 hover:text-rose-600" title="حذف السند"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>`;
                 }).join('');
@@ -899,7 +910,7 @@
                     </div>
                     <table class="w-full text-right text-sm">
                         <thead class="bg-slate-100">
-                            <tr><th class="p-2">التاريخ</th><th class="p-2">النوع</th><th class="p-2">المبلغ</th><th class="p-2">البيان</th><th class="p-2 text-center no-print">إعادة إرسال</th></tr>
+                            <tr><th class="p-2">التاريخ</th><th class="p-2">النوع</th><th class="p-2">المبلغ</th><th class="p-2">البيان</th><th class="p-2 text-center no-print">إجراءات</th></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             ${cV.map(v => `<tr>
@@ -907,7 +918,11 @@
                                 <td class="p-2">${v.type === 'debit' ? 'قبض (له)':'صرف (عليه)'}</td>
                                 <td class="p-2 font-bold">${v.amount} ${curr}</td>
                                 <td class="p-2 text-slate-500">${v.notes || '-'}</td>
-                                <td class="p-2 text-center no-print"><button onclick="resendVoucherMsg('${v.id}')" class="text-emerald-600 hover:text-emerald-800"><i class="fa-brands fa-whatsapp"></i></button></td>
+                                <td class="p-2 text-center flex justify-center gap-2 no-print">
+                                    <button onclick="resendVoucherMsg('${v.id}')" class="text-emerald-600 hover:text-emerald-800" title="إعادة إرسال عبر واتساب"><i class="fa-brands fa-whatsapp"></i></button>
+                                    <button onclick="editVoucher('${v.id}')" class="text-slate-400 hover:text-indigo-600" title="تعديل السند"><i class="fa-solid fa-pen"></i></button>
+                                    <button onclick="deleteVoucher('${v.id}')" class="text-slate-400 hover:text-rose-600" title="حذف السند"><i class="fa-solid fa-trash"></i></button>
+                                </td>
                             </tr>`).join('')}
                         </tbody>
                     </table>
